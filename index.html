@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8"/>
+    <title>Loady example</title>
+</head>
+
+<body>
+    <h1>Loady example</h1>
+
+    <!--Content-->
+    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut dignissim nibh non fermentum vestibulum. Maecenas vel ligula sapien. Ut rhoncus accumsan magna, et venenatis ante porttitor vitae. Vivamus hendrerit scelerisque velit sed fermentum. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Aenean dignissim neque in urna tincidunt, in rhoncus massa bibendum. Suspendisse vel nisi justo.</p>
+
+    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut dignissim nibh non fermentum vestibulum. Maecenas vel ligula sapien. Ut rhoncus accumsan magna, et venenatis ante porttitor vitae. Vivamus hendrerit scelerisque velit sed fermentum. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Aenean dignissim neque in urna tincidunt, in rhoncus massa bibendum. Suspendisse vel nisi justo.</p>
+
+    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut dignissim nibh non fermentum vestibulum. Maecenas vel ligula sapien. Ut rhoncus accumsan magna, et venenatis ante porttitor vitae. Vivamus hendrerit scelerisque velit sed fermentum. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Aenean dignissim neque in urna tincidunt, in rhoncus massa bibendum. Suspendisse vel nisi justo.</p>
+
+    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut dignissim nibh non fermentum vestibulum. Maecenas vel ligula sapien. Ut rhoncus accumsan magna, et venenatis ante porttitor vitae. Vivamus hendrerit scelerisque velit sed fermentum. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Aenean dignissim neque in urna tincidunt, in rhoncus massa bibendum. Suspendisse vel nisi justo.</p>
+
+    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut dignissim nibh non fermentum vestibulum. Maecenas vel ligula sapien. Ut rhoncus accumsan magna, et venenatis ante porttitor vitae. Vivamus hendrerit scelerisque velit sed fermentum. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Aenean dignissim neque in urna tincidunt, in rhoncus massa bibendum. Suspendisse vel nisi justo.</p>
+
+    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut dignissim nibh non fermentum vestibulum. Maecenas vel ligula sapien. Ut rhoncus accumsan magna, et venenatis ante porttitor vitae. Vivamus hendrerit scelerisque velit sed fermentum. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Aenean dignissim neque in urna tincidunt, in rhoncus massa bibendum. Suspendisse vel nisi justo.</p>
+
+    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut dignissim nibh non fermentum vestibulum. Maecenas vel ligula sapien. Ut rhoncus accumsan magna, et venenatis ante porttitor vitae. Vivamus hendrerit scelerisque velit sed fermentum. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Aenean dignissim neque in urna tincidunt, in rhoncus massa bibendum. Suspendisse vel nisi justo.</p>
+
+    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut dignissim nibh non fermentum vestibulum. Maecenas vel ligula sapien. Ut rhoncus accumsan magna, et venenatis ante porttitor vitae. Vivamus hendrerit scelerisque velit sed fermentum. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Aenean dignissim neque in urna tincidunt, in rhoncus massa bibendum. Suspendisse vel nisi justo.</p>
+
+    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut dignissim nibh non fermentum vestibulum. Maecenas vel ligula sapien. Ut rhoncus accumsan magna, et venenatis ante porttitor vitae. Vivamus hendrerit scelerisque velit sed fermentum. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Aenean dignissim neque in urna tincidunt, in rhoncus massa bibendum. Suspendisse vel nisi justo.</p>
+
+    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut dignissim nibh non fermentum vestibulum. Maecenas vel ligula sapien. Ut rhoncus accumsan magna, et venenatis ante porttitor vitae. Vivamus hendrerit scelerisque velit sed fermentum. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Aenean dignissim neque in urna tincidunt, in rhoncus massa bibendum. Suspendisse vel nisi justo.</p>
+
+    <!--Scripts-->
+    <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+    <script src="loady.js"></script>
+    <script>
+        /* global loady, system */
+        $(function () {
+            // Add the same script multiple times (which it won't course) to the current document
+            loady(['loadme', 'loadme.js'], function (scripts, isSuccess) {
+                if (!isSuccess) {
+                    console.log('index.html: An error occurred with loading the script files');
+                    return;
+                }
+
+                console.log('index.html: This is called only once after all scripts have been loaded, yippee! { %o, %s }', scripts, isSuccess);
+                // Call the namespace + function in loadme.js
+                system.init();
+            });
+        });
+    </script>
+</body>
+</html>
