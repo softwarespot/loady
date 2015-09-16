@@ -4,7 +4,7 @@
 
 ## What is Loady?
 
-Many script loaders exist in the real world and I'm in no way trying be the "next big thing", as I believe the likes of (RequireJS)[https://github.com/jrburke/requirejs] are adequate enough for daily usage. I simply created this as a way to further improve my knowledge of JavaScript and experiment with features that I necessarily would mess around with.
+Many script loaders exist in the real world and I'm in no way trying be the "next big thing", as I believe the likes of [RequireJS](https://github.com/jrburke/requirejs) are adequate enough for daily usage. I simply created this as a way to further improve my knowledge of JavaScript and experiment with features that I necessarily would mess around with.
 
 If you're unaware of just what a script loader is, read the links below.
 
@@ -18,9 +18,11 @@ If you're unaware of just what a script loader is, read the links below.
         // The callback function is passed an array of loaded scripts and whether all scripts were loaded successfully
         loady(['myScript1.js', 'myScript2.js', 'myScript3'], function (scripts, isSuccess) {
             if (isSuccess) {
-                console.log('Success, the following scripts were loaded into the current document { %o }', scripts);
+                console.log('Success, the following scripts were loaded into the' +
+                    ' current document { %o }', scripts);
             } else {
-                console.log('An error occurred, though the following scripts were loaded not loaded into the curren document { %o }', scripts);
+                console.log('An error occurred, though the following scripts were loaded not' +
+                    ' loaded into the curren document { %o }', scripts);
             }
         });
     </script>
