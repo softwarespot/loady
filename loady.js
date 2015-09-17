@@ -193,7 +193,8 @@ var loady = (function (document) { // jshint ignore:line
 
             node.setAttribute(_dataAttributes.SOURCE_FILE, sourceFile);
 
-            // Attach events. Note: Bind is used to 'bind' to the context of 'this' i.e. the class
+            // Attach events
+            // Note: Bind is used to 'bind' to the context of 'this' i.e. the current object
             node.addEventListener('load', this.onLoad.bind(this), false);
             node.addEventListener('error', this.onLoad.bind(this), false);
 
