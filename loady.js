@@ -93,7 +93,7 @@ var loady = (function (document) { // jshint ignore:line
      */
     ILoader.prototype = {
         /**
-         * Tidy up open resources, good housekeeping
+         * Tidy up open resources i.e. good housekeeping
          *
          * @return {undefined}
          */
@@ -101,9 +101,9 @@ var loady = (function (document) { // jshint ignore:line
             // Final callback function
             this._callback = null;
 
-            // Currently loaded total count.
+            // Currently loaded total count
             // Note: The loaded count is set to -1, due to this.onCompleted incrementing by 1 and checking against this._length,
-            // which right now is set to 0
+            // which right now is set to 0. So utilised before pre-checks
             this._loaded = -1;
 
             // An array of successfully loaded source file(s)
@@ -166,7 +166,7 @@ var loady = (function (document) { // jshint ignore:line
 
                 var index = _storageFiles.indexOf(sourceFile);
                 if (index !== -1) {
-                    this.onCompleted(_storageState[index] !== true);
+                    this.onCompleted(_storageState[index]);
                     return;
                 }
 
@@ -212,6 +212,7 @@ var loady = (function (document) { // jshint ignore:line
          * @return {undefined}
          */
         onCompleted: function (isSuccess) {
+            // If not equal to the boolean type and true, then automatically assume as false
             if (isSuccess !== true) {
                 isSuccess = false;
             }
@@ -246,6 +247,9 @@ var loady = (function (document) { // jshint ignore:line
                 node.removeEventListener('load', this.onLoad, false);
                 node.removeEventListener('error', this.onLoad, false);
 
+                // Push the state of the source file. If loaded will be true; otherwise, false
+                _storageState.push(isLoaded);
+
                 // Display details about the inserted SCRIPT node and script
                 if (isLoaded) {
                     // console.log('Loader.onLoad: Loaded/Error callback invoked, Time: %i', +(new Date()));
@@ -253,9 +257,6 @@ var loady = (function (document) { // jshint ignore:line
 
                     // Get the source file directly from the data-* attribute
                     var sourceFile = node.getAttribute(_dataAttributes.SOURCE_FILE);
-
-                    // Push the state of the source file
-                    _storageState.push(true);
 
                     // Push to the successfully loaded scripts
                     this._called.push(sourceFile);
