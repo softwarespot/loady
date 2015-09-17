@@ -15,12 +15,13 @@ var loady = (function (document) { // jshint ignore:line
     // Store the first head node
     var _head = document.head || document.getElementsByTagName('head')[0];
 
+    // Regular expression to strip the JS extension
     var _reJsExtension = /\.js$/;
 
-    // Store previously loaded source files
+    // Store previously loaded source file(s)
     var _storageFiles = [];
 
-    // Store the state of the source file i.e. true or false
+    // Store the state of the source file(s) i.e. true or false
     var _storageState = [];
 
     // Return strings of toString() found on the Object prototype
@@ -97,33 +98,35 @@ var loady = (function (document) { // jshint ignore:line
          * @return {undefined}
          */
         destroy: function () {
-            // Callback function
+            // Final callback function
             this._callback = null;
 
-            // Currently loaded total count
+            // Currently loaded total count.
+            // Note: The loaded count is set to -1, due to this.onCompleted incrementing by 1 and checking against this._length,
+            // which right now is set to 0
             this._loaded = -1;
 
-            // An array of loaded source file(s)
+            // An array of successfully loaded source file(s)
             this._called = null;
 
-            // An array of source file(s)
+            // An array of source file(s) initially passed in
             this._files = null;
 
-            // Length of the source files
+            // Length of the source file(s) initially passed in
             this._length = 0;
         },
 
         /**
-         * Load an array of source files
+         * Load an array of source file(s)
          *
-         * @param {array} sourceFiles An array of source files. Note: .js is optional
-         * @param {Function} callback Callback function to invoke on successful completion.
+         * @param {array} sourceFiles An array of source file(s). Note: .js is optional
+         * @param {function} callback Callback function to invoke on successful completion.
          * The arguments passed to the callback is an array of loaded scripts and a success parameter of true or false
          * @return {undefined}
          */
         load: function (sourceFiles, callback) {
-            // Set the loaded count to -1, due to this.onCompleted incrementing by 1 and checking against this._length, which right now is 0
-            this._loaded = -1;
+            // Destroy the previous contents
+            this.destroy();
 
             // This is the only error thrown, due to a callback being required
             if (!isFunction(callback)) {
@@ -138,7 +141,7 @@ var loady = (function (document) { // jshint ignore:line
             // Set the callback function property
             this._callback = callback;
 
-            // Check if the source files argument is not an array
+            // Check if the source file(s) argument is not an array
             if (!isArray(sourceFiles)) {
                 this.onCompleted(false);
                 return;
@@ -163,7 +166,6 @@ var loady = (function (document) { // jshint ignore:line
 
                 var index = _storageFiles.indexOf(sourceFile);
                 if (index !== -1) {
-                    console.log('%s is already loaded, Time: %i', sourceFile, +(new Date()));
                     this.onCompleted(_storageState[index] !== true);
                     return;
                 }
@@ -245,8 +247,8 @@ var loady = (function (document) { // jshint ignore:line
 
                 // Display details about the inserted SCRIPT node and script
                 if (isLoaded) {
-                    console.log('Loader.onLoad: Loaded/Error callback invoked, Time: %i', +(new Date()));
-                    console.log('Loader.onLoad: Attribute = ' + node.getAttribute(_dataAttributes.SOURCE_FILE));
+                    // console.log('Loader.onLoad: Loaded/Error callback invoked, Time: %i', +(new Date()));
+                    // console.log('Loader.onLoad: Attribute = ' + node.getAttribute(_dataAttributes.SOURCE_FILE));
 
                     // Get the source file directly from the data-* attribute
                     var sourceFile = node.getAttribute(_dataAttributes.SOURCE_FILE);
