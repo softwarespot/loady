@@ -167,7 +167,7 @@ var loady = (function (document) { // jshint ignore:line
                 var index = _storageFiles.indexOf(sourceFile);
                 if (index !== -1) {
                     this.onCompleted(_storageState[index]);
-                    return;
+                    continue;
                 }
 
                 // Load the script file and append to the current document
