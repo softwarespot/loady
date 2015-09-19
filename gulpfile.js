@@ -28,7 +28,12 @@ var Assets = {
     dest: 'dist',
     main: 'loady.js',
     minified: 'loady.min.js',
+    other: [
+        '/.system.js',
+        './user.js'
+    ]
 };
+Assets.other.push(/./ + Assets.main);
 
 // Clean the 'dist' directory
 gulp.task('clean', function (cb) {
@@ -37,7 +42,7 @@ gulp.task('clean', function (cb) {
 
 // Run the babel transpiler to convert from ES2015 to ES5
 gulp.task('es6to5', function () {
-    return gulp.src('./' + Assets.main)
+    return gulp.src(Assets.other)
         .pipe(babel())
         .pipe(gulp.dest('./' + Assets.dest));
 });
