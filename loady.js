@@ -43,7 +43,7 @@
     // Append the Loady API to the global object reference
     global[name] = _loadyAPI;
 
-})(this, 'loady', (document) => {
+})(window, 'loady', (document) => { // Can't be 'this' with babelJS, as it gets set to 'undefined'
     // Constants
 
     const _dataAttributes = {
@@ -303,4 +303,4 @@
         }
     };
 
-}(window.document));
+}(window.document)); // Can't be 'this.document' with babelJS, as it gets set to 'undefined'

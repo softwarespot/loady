@@ -48,7 +48,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
     // Append the Loady API to the global object reference
     global[name] = _loadyAPI;
-})(undefined, 'loady', (function (document) {
+})(window, 'loady', (function (document) {
+    // Can't be 'this' with babelJS, as it gets set to 'undefined'
     // Constants
 
     var _dataAttributes = {
@@ -324,4 +325,4 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
         return ILoader;
     })();
-})(window.document));
+})(window.document)); // Can't be 'this.document' with babelJS, as it gets set to 'undefined'

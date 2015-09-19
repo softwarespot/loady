@@ -17,4 +17,4 @@
     }
 
     return _publicAPI;
-})(undefined);
+})(window); // Can't be 'this' with babelJS, as it gets set to 'undefined'
