@@ -18,6 +18,4 @@
     if (!global.App.user) {
         global.App.user = _publicAPI;
     }
-
-    return _publicAPI;
 })(window); // Can't be 'this' with babelJS, as it gets set to 'undefined'
