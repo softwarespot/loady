@@ -5,7 +5,7 @@
     }
 
     // Public API
-    let _publicAPI = {
+    const _publicAPI = {
         init: init
     };
 
