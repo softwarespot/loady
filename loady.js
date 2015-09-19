@@ -308,7 +308,11 @@
             }
         }
 
-        // Get the version number of the module
+        /**
+         * Get the version number of the module
+         *
+         * @return {string} Module version number
+         */
         getVersion() {
             return VERSION;
         }
