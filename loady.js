@@ -9,15 +9,11 @@
  * Note: This is NOT a replacement for module loaders available on the market
  */
 ; // jshint ignore:line
-((global, name, iLoader, undefined) => { // jshint ignore:line
+((global, name, iLoader, undefined) => {
+    // Constants
 
-    // Check if Loady has already been registered beforehand and if so, throw an error
-    if (global[name] !== undefined) {
-        throw new Error('Loady appears to be already registered on the global object, therefore the module has not be registered.');
-    }
-
-    // Append the Loady API to the global object reference
-    global[name] = (sourceFiles, callback) => {
+    // Public API
+    const _loadyAPI = (sourceFiles, callback) => {
         // Create an instance of the internal loader class
         const loady = new iLoader();
 
@@ -25,7 +21,29 @@
         loady.load(sourceFiles, callback);
     };
 
-})(window, 'loady', (document) => {
+    // Store a 'module' reference
+    const module = global.module;
+
+    // Store a 'define' reference
+    const define = global.define;
+
+    if (module !== undefined && module.exports) {
+        // Node.js Module
+        module.exports = _loadyAPI;
+    } else if (typeof define === 'function' && define.amd) {
+        // AMD Module
+        global.define(name, [], _loadyAPI);
+    }
+
+    // Check if Loady has already been registered beforehand and if so, throw an error
+    if (global[name] !== undefined) {
+        throw new Error('Loady appears to be already registered with the global object, therefore the module has not be registered.');
+    }
+
+    // Append the Loady API to the global object reference
+    global[name] = _loadyAPI;
+
+})(this, 'loady', (document) => {
     // Constants
 
     const _dataAttributes = {
