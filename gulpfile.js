@@ -33,7 +33,7 @@ var Assets = {
         './user.js'
     ]
 };
-Assets.other.push(/./ + Assets.main);
+Assets.other.push('./' + Assets.main);
 
 // Clean the 'dist' directory
 gulp.task('clean', function (cb) {
