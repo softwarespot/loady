@@ -48,7 +48,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
     // Append the Loady API to the global object reference
     global[name] = _loadyAPI;
-})(window, 'loady', (function (document) {
+})(window, 'loady', (function (global) {
     // Can't be 'this' with babelJS, as it gets set to 'undefined'
     // Constants
 
@@ -58,6 +58,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
     var _dataAttributes = {
         SOURCE_FILE: 'data-loady-sourcefile'
     };
+
+    // Store the document object reference
+    var document = global.document;
 
     // Store the first head node
     var _head = document.head || document.getElementsByTagName('head')[0];
@@ -79,7 +82,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
     };
 
     // Store the toString method
-    var _objectToString = Object.prototype.toString;
+    var _objectToString = global.Object.prototype.toString;
 
     /**
      * Check if a variable is an array datatype
@@ -87,7 +90,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
      * @param {mixed} value Value to check
      * @returns {boolean} True the value is an array datatype; otherwise, false
      */
-    var isArray = Array.isArray;
+    var isArray = global.Array.isArray;
 
     /**
      * Check if a variable is a function datatype
@@ -129,7 +132,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
      */
     return (function () {
         /**
-         * Constructor
+         * Constructor for the class
          *
          * @return {undefined}
          */
@@ -183,7 +186,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
                 // This is the only error thrown, due to a callback being required
                 if (!isFunction(callback)) {
-                    throw new Error('Loady: The callback function argument is not a valid function type.');
+                    throw new global.Error('Loady: The callback function argument is not a valid function type.');
                 }
 
                 // Coerce as an array if the source file is a string
@@ -335,4 +338,4 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
         return ILoader;
     })();
-})(window.document)); // Can't be 'this.document' with babelJS, as it gets set to 'undefined'
+})(window)); // Can't be 'this' with babelJS, as it gets set to 'undefined'

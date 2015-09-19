@@ -43,7 +43,7 @@
     // Append the Loady API to the global object reference
     global[name] = _loadyAPI;
 
-})(window, 'loady', (document) => { // Can't be 'this' with babelJS, as it gets set to 'undefined'
+})(window, 'loady', (global) => { // Can't be 'this' with babelJS, as it gets set to 'undefined'
     // Constants
 
     // Version number of the module
@@ -52,6 +52,9 @@
     const _dataAttributes = {
         SOURCE_FILE: 'data-loady-sourcefile'
     };
+
+    // Store the document object reference
+    var document = global.document;
 
     // Store the first head node
     const _head = document.head || document.getElementsByTagName('head')[0];
@@ -73,7 +76,7 @@
     };
 
     // Store the toString method
-    const _objectToString = Object.prototype.toString;
+    const _objectToString = global.Object.prototype.toString;
 
     /**
      * Check if a variable is an array datatype
@@ -81,7 +84,7 @@
      * @param {mixed} value Value to check
      * @returns {boolean} True the value is an array datatype; otherwise, false
      */
-    const isArray = Array.isArray;
+    const isArray = global.Array.isArray;
 
     /**
      * Check if a variable is a function datatype
@@ -123,7 +126,7 @@
      */
     return class ILoader {
         /**
-         * Constructor
+         * Constructor for the class
          *
          * @return {undefined}
          */
@@ -169,7 +172,7 @@
 
             // This is the only error thrown, due to a callback being required
             if (!isFunction(callback)) {
-                throw new Error('Loady: The callback function argument is not a valid function type.');
+                throw new global.Error('Loady: The callback function argument is not a valid function type.');
             }
 
             // Coerce as an array if the source file is a string
@@ -311,4 +314,4 @@
         }
     };
 
-}(window.document)); // Can't be 'this.document' with babelJS, as it gets set to 'undefined'
+}(window)); // Can't be 'this' with babelJS, as it gets set to 'undefined'
