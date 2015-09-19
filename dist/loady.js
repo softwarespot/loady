@@ -52,6 +52,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
     // Can't be 'this' with babelJS, as it gets set to 'undefined'
     // Constants
 
+    // Version number of the module
+    var VERSION = '0.1.0';
+
     var _dataAttributes = {
         SOURCE_FILE: 'data-loady-sourcefile'
     };
@@ -320,6 +323,13 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
                     this.onCompleted(true);
                 }
+            }
+
+            // Get the version number of the module
+        }, {
+            key: 'getVersion',
+            value: function getVersion() {
+                return VERSION;
             }
         }]);
 

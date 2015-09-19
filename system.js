@@ -9,9 +9,12 @@
         init: init
     };
 
+    // Create an 'App' namespace
+    global.App = global.App || {};
+
     // Append 'system' to the global object reference and reference the public API
-    if (!global.system) {
-        global.system = _publicAPI;
+    if (!global.App.system) {
+        global.App.system = _publicAPI;
     }
 
     return _publicAPI;
