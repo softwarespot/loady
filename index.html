@@ -36,7 +36,7 @@
         /* global loady, system, user */
         $(function () {
             // Add the same script multiple times (which it won't course) to the current document
-            loady(['dist/system', 'dist/system.js', 'user'], function (scripts, isSuccess) {
+            loady(['dist/system', 'dist/system.js', 'dist/user'], function (scripts, isSuccess) {
                 if (!isSuccess) {
                     console.log('index.html: An error occurred with loading the script files');
                     return;
