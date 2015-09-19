@@ -46,6 +46,9 @@
 })(window, 'loady', (document) => { // Can't be 'this' with babelJS, as it gets set to 'undefined'
     // Constants
 
+    // Version number of the module
+    const VERSION = '0.1.0';
+
     const _dataAttributes = {
         SOURCE_FILE: 'data-loady-sourcefile'
     };
@@ -300,6 +303,11 @@
 
                 this.onCompleted(true);
             }
+        }
+
+        // Get the version number of the module
+        getVersion() {
+            return VERSION;
         }
     };
 
