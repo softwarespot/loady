@@ -29,7 +29,7 @@ var Assets = {
     main: 'loady.js',
     minified: 'loady.min.js',
     other: [
-        '/.system.js',
+        './system.js',
         './user.js'
     ]
 };
