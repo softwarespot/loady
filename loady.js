@@ -1,28 +1,72 @@
-/**
+/*
+ * Loady module
+ * https://github.com/softwarespot/loady
+ * Author: softwarespot
+ * Licensed under the MIT license
+ * Version: 0.1.0
+ *
  * Loady module - Load external JavaScript file(s) and append it to the head of the current document
  * Note: This is NOT a replacement for module loaders available on the market
- *
- * Modified: 2015/09/16
- * @author softwarespot
  */
-var loady = (function (document) { // jshint ignore:line
+; // jshint ignore:line
+((global, name, iLoader, undefined) => {
     // Constants
 
-    var _dataAttributes = {
+    // Public API
+    const _loadyAPI = (sourceFiles, callback) => {
+        // Create an instance of the internal loader class
+        const loady = new iLoader();
+
+        // Load the source file(s)
+        loady.load(sourceFiles, callback);
+    };
+
+    // Store a 'module' reference
+    const module = global.module;
+
+    // Store a 'define' reference
+    const define = global.define;
+
+    if (module !== undefined && module.exports) {
+        // Node.js Module
+        module.exports = _loadyAPI;
+    } else if (typeof define === 'function' && define.amd) {
+        // AMD Module
+        global.define(name, [], _loadyAPI);
+    }
+
+    // Check if Loady has already been registered beforehand and if so, throw an error
+    if (global[name] !== undefined) {
+        throw new Error('Loady appears to be already registered with the global object, therefore the module has not be registered.');
+    }
+
+    // Append the Loady API to the global object reference
+    global[name] = _loadyAPI;
+
+})(window, 'loady', (global) => { // Can't be 'this' with babelJS, as it gets set to 'undefined'
+    // Constants
+
+    // Version number of the module
+    const VERSION = '0.1.0';
+
+    const _dataAttributes = {
         SOURCE_FILE: 'data-loady-sourcefile'
     };
 
+    // Store the document object reference
+    var document = global.document;
+
     // Store the first head node
-    var _head = document.head || document.getElementsByTagName('head')[0];
+    const _head = document.head || document.getElementsByTagName('head')[0];
 
     // Regular expression to strip the JS extension
-    var _reJsExtension = /\.js$/;
+    const _reJsExtension = /\.js$/;
 
     // Store previously loaded source file(s)
-    var _storageFiles = [];
+    const _storageFiles = [];
 
     // Store the state of the source file(s) i.e. true or false
-    var _storageState = [];
+    const _storageState = [];
 
     // Return strings of toString() found on the Object prototype
     // Based on the implementation by lodash inc. is* function as well
@@ -32,7 +76,7 @@ var loady = (function (document) { // jshint ignore:line
     };
 
     // Store the toString method
-    var _objectToString = Object.prototype.toString;
+    const _objectToString = global.Object.prototype.toString;
 
     /**
      * Check if a variable is an array datatype
@@ -40,7 +84,7 @@ var loady = (function (document) { // jshint ignore:line
      * @param {mixed} value Value to check
      * @returns {boolean} True the value is an array datatype; otherwise, false
      */
-    var isArray = Array.isArray;
+    const isArray = global.Array.isArray;
 
     /**
      * Check if a variable is a function datatype
@@ -60,7 +104,7 @@ var loady = (function (document) { // jshint ignore:line
      */
     function isObject(value) {
         // Store the typeof value
-        var type = typeof value;
+        const type = typeof value;
 
         // !!value is basically checking if value is not 'truthy' e.g. null or zero and then inverts that boolean value
         // So, !'Some test' is false and then inverting false is true. There if value contains 'something', continue
@@ -77,27 +121,25 @@ var loady = (function (document) { // jshint ignore:line
         return typeof value === 'string' || _objectToString.call(value) === _objectStrings.STRING;
     }
 
-    // START: Loader class
-
     /**
      * ILoader class
      */
-    function ILoader() {
-        this.destroy();
-    }
-
-    /**
-     * Loader prototype chain
-     *
-     * @type {object}
-     */
-    ILoader.prototype = {
+    return class ILoader {
         /**
-         * Tidy up open resources i.e. good housekeeping
+         * Constructor for the class
          *
          * @return {undefined}
          */
-        destroy: function () {
+        constructor() {
+            this.destroy();
+        }
+
+        /**
+         * Tidy up resources i.e. good housekeeping
+         *
+         * @return {undefined}
+         */
+        destroy() {
             // Final callback function
             this._callback = null;
 
@@ -114,7 +156,7 @@ var loady = (function (document) { // jshint ignore:line
 
             // Length of the source file(s) initially passed in
             this._length = 0;
-        },
+        }
 
         /**
          * Load an array of source file(s)
@@ -124,13 +166,13 @@ var loady = (function (document) { // jshint ignore:line
          * The arguments passed to the callback is an array of loaded scripts and a success parameter of true or false
          * @return {undefined}
          */
-        load: function (sourceFiles, callback) {
+        load(sourceFiles, callback) {
             // Destroy the previous contents
             this.destroy();
 
             // This is the only error thrown, due to a callback being required
             if (!isFunction(callback)) {
-                throw new Error('Loady: The callback function argument is not a valid function type.');
+                throw new global.Error('Loady: The callback function argument is not a valid function type.');
             }
 
             // Coerce as an array if the source file is a string
@@ -159,12 +201,12 @@ var loady = (function (document) { // jshint ignore:line
             this._files = sourceFiles;
             this._length = sourceFiles.length;
 
-            for (var i = 0; i < this._length; i++) {
-                var sourceFile = sourceFiles[i];
+            for (let i = 0; i < this._length; i++) {
+                let sourceFile = sourceFiles[i];
                 // Strip and append .js to the source file
                 sourceFile = sourceFile.replace(_reJsExtension, '') + '.js';
 
-                var index = _storageFiles.indexOf(sourceFile);
+                const index = _storageFiles.indexOf(sourceFile);
                 if (index !== -1) {
                     this.onCompleted(_storageState[index]);
                     continue;
@@ -173,7 +215,7 @@ var loady = (function (document) { // jshint ignore:line
                 // Load the script file and append to the current document
                 this.loadScript(sourceFile);
             }
-        },
+        }
 
         /**
          * Load a script and append to the first HEAD node in the DOM
@@ -181,8 +223,8 @@ var loady = (function (document) { // jshint ignore:line
          * @param {string} sourceFile Script source location that can be absolute or relative
          * @return {undefined}
          */
-        loadScript: function (sourceFile) {
-            var node = document.createElement('script');
+        loadScript(sourceFile) {
+            const node = document.createElement('script');
             node.src = sourceFile;
             // node.text = file;
 
@@ -203,7 +245,7 @@ var loady = (function (document) { // jshint ignore:line
 
             // Push to the internal storage
             _storageFiles.push(sourceFile);
-        },
+        }
 
         /**
          * Increment the loaded scripts property and invoke the callback function on completion
@@ -211,7 +253,7 @@ var loady = (function (document) { // jshint ignore:line
          * @param {boolean} isSuccess Whether the request was successful
          * @return {undefined}
          */
-        onCompleted: function (isSuccess) {
+        onCompleted(isSuccess) {
             // If not equal to the boolean type and true, then automatically assume as false
             if (isSuccess !== true) {
                 isSuccess = false;
@@ -224,7 +266,7 @@ var loady = (function (document) { // jshint ignore:line
                 this._callback.apply(this, [this._called, isSuccess]);
                 this.destroy();
             }
-        },
+        }
 
         /**
          * The 'load' or 'error' callback function for the event listeners
@@ -232,13 +274,13 @@ var loady = (function (document) { // jshint ignore:line
          * @param {event} event Event object passed by the event listener
          * @return {undefined}
          */
-        onLoad: function (event) {
+        onLoad(event) {
             // Store the type of event and whether it was a 'load' or 'error' type event
-            var type = event.type;
-            var isLoaded = type === 'load';
+            const type = event.type;
+            const isLoaded = type === 'load';
 
             if (isLoaded || type === 'error') {
-                var node = event.currentTarget || event.srcElement;
+                const node = event.currentTarget || event.srcElement;
                 if (!node) {
                     return;
                 }
@@ -256,7 +298,7 @@ var loady = (function (document) { // jshint ignore:line
                     // console.log('Loader.onLoad: Attribute = ' + node.getAttribute(_dataAttributes.SOURCE_FILE));
 
                     // Get the source file directly from the data-* attribute
-                    var sourceFile = node.getAttribute(_dataAttributes.SOURCE_FILE);
+                    const sourceFile = node.getAttribute(_dataAttributes.SOURCE_FILE);
 
                     // Push to the successfully loaded scripts
                     this._called.push(sourceFile);
@@ -265,17 +307,15 @@ var loady = (function (document) { // jshint ignore:line
                 this.onCompleted(true);
             }
         }
+
+        /**
+         * Get the version number of the module
+         *
+         * @return {string} Module version number
+         */
+        getVersion() {
+            return VERSION;
+        }
     };
 
-    // END: Loader class
-
-    // Public API
-
-    return function (sourceFiles, callback) {
-        // Create an instance of the internal loader class
-        var loady = new ILoader();
-
-        // Load the source file(s)
-        loady.load(sourceFiles, callback);
-    };
-})(this.document);
+}(window)); // Can't be 'this' with babelJS, as it gets set to 'undefined'

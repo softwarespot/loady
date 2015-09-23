@@ -1,0 +1,17 @@
+{
+  "name": "loady",
+  "homepage": "https://github.com/softwarespot/loady",
+  "description": "A basic script loader",
+  "main": "dist/loady.js",
+  "keywords": [
+    "loady",
+    "script loader"
+  ],
+  "license": "MIT",
+  "ignore": [
+  ],
+  "dependencies": {
+  },
+  "devDependencies": {
+  }
+}
