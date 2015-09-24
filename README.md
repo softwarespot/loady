@@ -11,7 +11,9 @@ If you're unaware of just what a script loader is, read the links below.
 ## How to use
 
 ```html
+    <!--Use the minified version for better performance-->
     <script src="loady.js"></script>
+
     <script>
         // An array of strings or a string can be passed as the first argument, with the second being a callback function.
         // Notice how .js is emitted from the 3rd script, as this is automatically appended.
@@ -26,6 +28,44 @@ If you're unaware of just what a script loader is, read the links below.
             }
         });
     </script>
+```
+
+## ES2015
+
+The module is written using ES2015, but is transpiled using [babel](https://babeljs.io) to ES5. The reason for using [babel](https://babeljs.io), is not all browsers currently support the ES2015 specification, though will likely change very soon. The transpiled files are located in the `dist` directory.
+
+## Contribute
+
+To contribute to the project, you will first need to install [gulp](http://gulpjs.com) globally on your system. Once installation has completed, change the working directory to the module's location and run the following command:
+
+```shell
+    npm install
+```
+
+After installation of the local modules, you're ready to start contributing to the project. Before you submit your PR, please don't forget to call `gulp`, which will run against [JSHint](http://jshint.com) for any errors, but will also minify the module and transpile using [babel](https://babeljs.io).
+
+##### Watch
+Call the following command to start 'watching' for any changes to the main JavaScript file(s). This will automatically invoke JSHint and Uglify.
+```shell
+    gulp watch
+```
+
+##### JSHint
+Call the following command to invoke JSHint and check that the changes meet the requirements set in .jshintrc.
+```shell
+    gulp jshint
+```
+
+##### Uglify
+Call the following command to invoke Uglify, which will minify the main JavaScript file(s) and output to a .min.js file respectively.
+```shell
+    gulp uglify
+```
+
+##### Build
+Call the following command to invoke both babel, JSHint and Uglify.
+```shell
+    gulp
 ```
 
 ## Sources
