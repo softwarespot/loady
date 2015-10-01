@@ -54,7 +54,7 @@
     };
 
     // Store the document object reference
-    var document = global.document;
+    const document = global.document;
 
     // Store the first head node
     const _head = document.head || document.getElementsByTagName('head')[0];
