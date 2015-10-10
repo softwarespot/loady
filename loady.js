@@ -170,13 +170,13 @@
          * @return {undefined}
          */
         load(sourceFiles, callback) {
-            // Destroy the previous contents
-            this.destroy();
-
             // This is the only error thrown, due to a callback being required
             if (!isFunction(callback)) {
                 throw new global.Error('Loady: The callback function argument is not a valid function type.');
             }
+
+            // Destroy the previous contents
+            this.destroy();
 
             // Coerce as an array if the source file is a string
             if (isString(sourceFiles)) {
@@ -186,14 +186,8 @@
             // Set the callback function property
             this._callback = callback;
 
-            // Check if the source file(s) argument is not an array
-            if (!isArray(sourceFiles)) {
-                this.onCompleted(false);
-                return;
-            }
-
-            // Check if any values exist in the array
-            if (sourceFiles.length === 0) {
+            // Check if the source file(s) argument is not an array or is empty
+            if (!isArray(sourceFiles) || sourceFiles.length === 0) {
                 this.onCompleted(false);
                 return;
             }
@@ -205,10 +199,10 @@
             this._length = sourceFiles.length;
 
             for (let i = 0, length = this._length; i < length; i++) {
-                let sourceFile = sourceFiles[i];
                 // Strip and append .js to the source file
-                sourceFile = sourceFile.replace(_reJsExtension, '') + '.js';
+                const sourceFile = sourceFiles[i].replace(_reJsExtension, '') + '.js';
 
+                // Check for duplicate source file(s)
                 const index = _storageFiles.indexOf(sourceFile);
                 if (index !== -1) {
                     this.onCompleted(_storageState[index]);

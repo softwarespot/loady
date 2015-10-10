@@ -43,7 +43,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
     // Check if Loady has already been registered beforehand and if so, throw an error
     if (global[name] !== undefined) {
-        throw new Error('Loady appears to be already registered with the global object, therefore the module has not be registered.');
+        throw new Error('Loady appears to be already registered with the global object, therefore the module has not been registered.');
     }
 
     // Append the Loady API to the global object reference
@@ -184,13 +184,13 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         }, {
             key: 'load',
             value: function load(sourceFiles, callback) {
-                // Destroy the previous contents
-                this.destroy();
-
                 // This is the only error thrown, due to a callback being required
                 if (!isFunction(callback)) {
                     throw new global.Error('Loady: The callback function argument is not a valid function type.');
                 }
+
+                // Destroy the previous contents
+                this.destroy();
 
                 // Coerce as an array if the source file is a string
                 if (isString(sourceFiles)) {
@@ -200,14 +200,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
                 // Set the callback function property
                 this._callback = callback;
 
-                // Check if the source file(s) argument is not an array
-                if (!isArray(sourceFiles)) {
-                    this.onCompleted(false);
-                    return;
-                }
-
-                // Check if any values exist in the array
-                if (sourceFiles.length === 0) {
+                // Check if the source file(s) argument is not an array or is empty
+                if (!isArray(sourceFiles) || sourceFiles.length === 0) {
                     this.onCompleted(false);
                     return;
                 }
@@ -219,10 +213,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
                 this._length = sourceFiles.length;
 
                 for (var i = 0, _length = this._length; i < _length; i++) {
-                    var sourceFile = sourceFiles[i];
                     // Strip and append .js to the source file
-                    sourceFile = sourceFile.replace(_reJsExtension, '') + '.js';
+                    var sourceFile = sourceFiles[i].replace(_reJsExtension, '') + '.js';
 
+                    // Check for duplicate source file(s)
                     var index = _storageFiles.indexOf(sourceFile);
                     if (index !== -1) {
                         this.onCompleted(_storageState[index]);
