@@ -72,6 +72,7 @@
     // Based on the implementation by lodash inc. is* function as well
     const _objectStrings = {
         FUNCTION: '[object Function]',
+        GENERATOR: '[object GeneratorFunction]',
         STRING: '[object String]'
     };
 
@@ -93,7 +94,8 @@
      * @returns {boolean} True the value is a function datatype; otherwise, false
      */
     function isFunction(value) {
-        return isObject(value) && _objectToString.call(value) === _objectStrings.FUNCTION;
+        const tag = isObject(value) ? _objectToString.call(value) : '';
+        return tag === _objectStrings.FUNCTION || tag === _objectStrings.GENERATOR;
     }
 
     /**
@@ -202,7 +204,7 @@
             this._files = sourceFiles;
             this._length = sourceFiles.length;
 
-            for (let i = 0; i < this._length; i++) {
+            for (let i = 0, length = this._length; i < length; i++) {
                 let sourceFile = sourceFiles[i];
                 // Strip and append .js to the source file
                 sourceFile = sourceFile.replace(_reJsExtension, '') + '.js';
@@ -225,7 +227,7 @@
          * @return {undefined}
          */
         loadScript(sourceFile) {
-            const node = document.createElement('script');
+            const node = document.createElement('SCRIPT');
             node.src = sourceFile;
             // node.text = file;
 

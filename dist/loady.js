@@ -78,6 +78,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
     // Based on the implementation by lodash inc. is* function as well
     var _objectStrings = {
         FUNCTION: '[object Function]',
+        GENERATOR: '[object GeneratorFunction]',
         STRING: '[object String]'
     };
 
@@ -99,7 +100,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
      * @returns {boolean} True the value is a function datatype; otherwise, false
      */
     function isFunction(value) {
-        return isObject(value) && _objectToString.call(value) === _objectStrings.FUNCTION;
+        var tag = isObject(value) ? _objectToString.call(value) : '';
+        return tag === _objectStrings.FUNCTION || tag === _objectStrings.GENERATOR;
     }
 
     /**
@@ -152,30 +154,31 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         _createClass(ILoader, [{
             key: 'destroy',
             value: function destroy() {
-                // Final callback function
+                // Final callback function after all scripts have been loaded successfully or not
                 this._callback = null;
 
                 // Currently loaded total count
+                //
                 // Note: The loaded count is set to -1, due to this.onCompleted incrementing by 1 and checking against this._length,
-                // which right now is set to 0. So utilised before pre-checks
+                // which right now is set to 0. So this is utilised during pre-checks
                 this._loaded = -1;
 
                 // An array of successfully loaded source file(s)
                 this._called = null;
 
-                // An array of source file(s) initially passed in
+                // An array of source file(s) initially passed to the module
                 this._files = null;
 
-                // Length of the source file(s) initially passed in
+                // Length of the source file(s) initially passed to the module
                 this._length = 0;
             }
 
             /**
              * Load an array of source file(s)
              *
-             * @param {array} sourceFiles An array of source file(s). Note: .js is optional
-             * @param {function} callback Callback function to invoke on successful completion.
-             * The arguments passed to the callback is an array of loaded scripts and a success parameter of true or false
+             * @param {array} sourceFiles An array of source file(s). Note: .js is optional and will be appended if not present
+             * @param {function} callback Callback function to invoke on completion successful or not.
+             * The arguments passed to the callback function is an array of loaded scripts and a success parameter of either true or false
              * @return {undefined}
              */
         }, {
@@ -209,13 +212,13 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
                     return;
                 }
 
-                // Set to 0, as now all the important checks have passed, thankfully
+                // Set to 0, as now all the important pre-checks have passed
                 this._loaded = 0;
                 this._called = [];
                 this._files = sourceFiles;
                 this._length = sourceFiles.length;
 
-                for (var i = 0; i < this._length; i++) {
+                for (var i = 0, _length = this._length; i < _length; i++) {
                     var sourceFile = sourceFiles[i];
                     // Strip and append .js to the source file
                     sourceFile = sourceFile.replace(_reJsExtension, '') + '.js';
@@ -240,7 +243,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         }, {
             key: 'loadScript',
             value: function loadScript(sourceFile) {
-                var node = document.createElement('script');
+                var node = document.createElement('SCRIPT');
                 node.src = sourceFile;
                 // node.text = file;
 
@@ -266,7 +269,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
             /**
              * Increment the loaded scripts property and invoke the callback function on completion
              *
-             * @param {boolean} isSuccess Whether the request was successful
+             * @param {boolean} isSuccess Whether the request was successful or not
              * @return {undefined}
              */
         }, {
@@ -314,9 +317,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
                     // Display details about the inserted SCRIPT node and script
                     if (isLoaded) {
-                        // console.log('Loader.onLoad: Loaded/Error callback invoked, Time: %i', +(new Date()));
-                        // console.log('Loader.onLoad: Attribute = ' + node.getAttribute(_dataAttributes.SOURCE_FILE));
-
                         // Get the source file directly from the data-* attribute
                         var sourceFile = node.getAttribute(_dataAttributes.SOURCE_FILE);
 
@@ -328,7 +328,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
                 }
             }
 
-            // Get the version number of the module
+            /**
+             * Get the version number of the module
+             *
+             * @return {string} Module version number
+             */
         }, {
             key: 'getVersion',
             value: function getVersion() {
