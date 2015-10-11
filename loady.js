@@ -288,7 +288,7 @@
 
                 // Display details about the inserted SCRIPT node and script
                 if (isLoaded) {
-                    // Get the source file directly from the data-* attribute
+                    // Get the source file directly from the data-* attribute. Could use node.getAttribute('src')
                     const sourceFile = node.getAttribute(_dataAttributes.SOURCE_FILE);
 
                     // Updated the state of the source file  using the index position of the source file in _sourceFiles.

@@ -310,6 +310,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
                     if (isLoaded) {
                         // Get the source file directly from the data-* attribute
                         var sourceFile = node.getAttribute(_dataAttributes.SOURCE_FILE);
+                        console.log(node.getAttribute('src'));
 
                         // Updated the state of the source file  using the index position of the source file in _sourceFiles.
                         var index = _storageFiles.indexOf(sourceFile);
