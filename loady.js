@@ -177,7 +177,7 @@
                 // Strip and append .js to the source file
                 const sourceFile = sourceFiles[i].replace(_reJsExtension, '') + '.js';
 
-                // Check for duplicate source file(s)
+                // Check for duplicate source file(s) that were loaded in the past
                 const index = _storageFiles.indexOf(sourceFile);
                 if (index !== -1) {
                     this._onCompleted(_storageState[index]);
@@ -286,13 +286,16 @@
                 node.removeEventListener('load', this._onLoad, false);
                 node.removeEventListener('error', this._onLoad, false);
 
-                // Push the state of the source file. If loaded will be true; otherwise, false
-                _storageState.push(isLoaded);
-
                 // Display details about the inserted SCRIPT node and script
                 if (isLoaded) {
                     // Get the source file directly from the data-* attribute
                     const sourceFile = node.getAttribute(_dataAttributes.SOURCE_FILE);
+
+                    // Updated the state of the source file  using the index position of the source file in _sourceFiles.
+                    const index = _storageFiles.indexOf(sourceFile);
+                    if (index !== -1) {
+                        _storageState[index] = isLoaded;
+                    }
 
                     // Push to the successfully loaded scripts
                     this._called.push(sourceFile);

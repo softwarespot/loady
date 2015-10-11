@@ -142,24 +142,79 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         function ILoader() {
             _classCallCheck(this, ILoader);
 
-            this.destroy();
+            this._destroy();
         }
 
         /**
-         * Tidy up resources i.e. good housekeeping
+         * Load an array of source file(s)
          *
+         * @param {array} sourceFiles An array of source file(s). Note: .js is optional and will be appended if not present
+         * @param {function} callback Callback function to invoke on completion successful or not.
+         * The arguments passed to the callback function is an array of loaded scripts and a success parameter of either true or false
          * @return {undefined}
          */
 
         _createClass(ILoader, [{
-            key: 'destroy',
-            value: function destroy() {
+            key: 'load',
+            value: function load(sourceFiles, callback) {
+                // This is the only error thrown, due to a callback being required
+                if (!isFunction(callback)) {
+                    throw new global.Error('Loady: The callback function argument is not a valid function type.');
+                }
+
+                // Destroy the previous contents
+                this._destroy();
+
+                // Coerce as an array if the source file is a string
+                if (isString(sourceFiles)) {
+                    sourceFiles = [sourceFiles];
+                }
+
+                // Set the callback function property
+                this._callback = callback;
+
+                // Check if the source file(s) argument is not an array or is empty
+                if (!isArray(sourceFiles) || sourceFiles.length === 0) {
+                    this._onCompleted(false);
+                    return;
+                }
+
+                // Set to 0, as now all the important pre-checks have passed
+                this._loaded = 0;
+                this._called = [];
+                this._files = sourceFiles;
+                this._length = sourceFiles.length;
+
+                for (var i = 0, _length = this._length; i < _length; i++) {
+                    // Strip and append .js to the source file
+                    var sourceFile = sourceFiles[i].replace(_reJsExtension, '') + '.js';
+
+                    // Check for duplicate source file(s) that were loaded in the past
+                    var index = _storageFiles.indexOf(sourceFile);
+                    if (index !== -1) {
+                        this._onCompleted(_storageState[index]);
+                        continue;
+                    }
+
+                    // Load the script file and append to the current document
+                    this._loadScript(sourceFile);
+                }
+            }
+
+            /**
+             * Tidy up resources i.e. good housekeeping
+             *
+             * @return {undefined}
+             */
+        }, {
+            key: '_destroy',
+            value: function _destroy() {
                 // Final callback function after all scripts have been loaded successfully or not
                 this._callback = null;
 
                 // Currently loaded total count
                 //
-                // Note: The loaded count is set to -1, due to this.onCompleted incrementing by 1 and checking against this._length,
+                // Note: The loaded count is set to -1, due to this._onCompleted incrementing by 1 and checking against this._length,
                 // which right now is set to 0. So this is utilised during pre-checks
                 this._loaded = -1;
 
@@ -174,70 +229,15 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
             }
 
             /**
-             * Load an array of source file(s)
-             *
-             * @param {array} sourceFiles An array of source file(s). Note: .js is optional and will be appended if not present
-             * @param {function} callback Callback function to invoke on completion successful or not.
-             * The arguments passed to the callback function is an array of loaded scripts and a success parameter of either true or false
-             * @return {undefined}
-             */
-        }, {
-            key: 'load',
-            value: function load(sourceFiles, callback) {
-                // This is the only error thrown, due to a callback being required
-                if (!isFunction(callback)) {
-                    throw new global.Error('Loady: The callback function argument is not a valid function type.');
-                }
-
-                // Destroy the previous contents
-                this.destroy();
-
-                // Coerce as an array if the source file is a string
-                if (isString(sourceFiles)) {
-                    sourceFiles = [sourceFiles];
-                }
-
-                // Set the callback function property
-                this._callback = callback;
-
-                // Check if the source file(s) argument is not an array or is empty
-                if (!isArray(sourceFiles) || sourceFiles.length === 0) {
-                    this.onCompleted(false);
-                    return;
-                }
-
-                // Set to 0, as now all the important pre-checks have passed
-                this._loaded = 0;
-                this._called = [];
-                this._files = sourceFiles;
-                this._length = sourceFiles.length;
-
-                for (var i = 0, _length = this._length; i < _length; i++) {
-                    // Strip and append .js to the source file
-                    var sourceFile = sourceFiles[i].replace(_reJsExtension, '') + '.js';
-
-                    // Check for duplicate source file(s)
-                    var index = _storageFiles.indexOf(sourceFile);
-                    if (index !== -1) {
-                        this.onCompleted(_storageState[index]);
-                        continue;
-                    }
-
-                    // Load the script file and append to the current document
-                    this.loadScript(sourceFile);
-                }
-            }
-
-            /**
              * Load a script and append to the first HEAD node in the DOM
              *
              * @param {string} sourceFile Script source location that can be absolute or relative
              * @return {undefined}
              */
         }, {
-            key: 'loadScript',
-            value: function loadScript(sourceFile) {
-                var node = document.createElement('SCRIPT');
+            key: '_loadScript',
+            value: function _loadScript(sourceFile) {
+                var node = document.createElement('script');
                 node.src = sourceFile;
                 // node.text = file;
 
@@ -250,8 +250,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
                 // Attach events
                 // Note: Bind is used to 'bind' to the context of 'this' i.e. the current object
-                node.addEventListener('load', this.onLoad.bind(this), false);
-                node.addEventListener('error', this.onLoad.bind(this), false);
+                node.addEventListener('load', this._onLoad.bind(this), false);
+                node.addEventListener('error', this._onLoad.bind(this), false);
 
                 // Append to the HEAD node
                 _head.appendChild(node);
@@ -267,8 +267,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
              * @return {undefined}
              */
         }, {
-            key: 'onCompleted',
-            value: function onCompleted(isSuccess) {
+            key: '_onCompleted',
+            value: function _onCompleted(isSuccess) {
                 // If not equal to the boolean type and true, then automatically assume as false
                 if (isSuccess !== true) {
                     isSuccess = false;
@@ -279,7 +279,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
                 if (this._length === this._loaded) {
                     this._callback.apply(this, [this._called, isSuccess]);
-                    this.destroy();
+                    this._destroy();
                 }
             }
 
@@ -290,8 +290,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
              * @return {undefined}
              */
         }, {
-            key: 'onLoad',
-            value: function onLoad(event) {
+            key: '_onLoad',
+            value: function _onLoad(event) {
                 // Store the type of event and whether it was a 'load' or 'error' type event
                 var type = event.type;
                 var isLoaded = type === 'load';
@@ -303,22 +303,25 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
                     }
 
                     // Remove assigned events
-                    node.removeEventListener('load', this.onLoad, false);
-                    node.removeEventListener('error', this.onLoad, false);
-
-                    // Push the state of the source file. If loaded will be true; otherwise, false
-                    _storageState.push(isLoaded);
+                    node.removeEventListener('load', this._onLoad, false);
+                    node.removeEventListener('error', this._onLoad, false);
 
                     // Display details about the inserted SCRIPT node and script
                     if (isLoaded) {
                         // Get the source file directly from the data-* attribute
                         var sourceFile = node.getAttribute(_dataAttributes.SOURCE_FILE);
 
+                        // Updated the state of the source file  using the index position of the source file in _sourceFiles.
+                        var index = _storageFiles.indexOf(sourceFile);
+                        if (index !== -1) {
+                            _storageState[index] = isLoaded;
+                        }
+
                         // Push to the successfully loaded scripts
                         this._called.push(sourceFile);
                     }
 
-                    this.onCompleted(true);
+                    this._onCompleted(true);
                 }
             }
 
