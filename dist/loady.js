@@ -308,9 +308,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
                     // Display details about the inserted SCRIPT node and script
                     if (isLoaded) {
-                        // Get the source file directly from the data-* attribute
+                        // Get the source file directly from the data-* attribute. Could use node.getAttribute('src')
                         var sourceFile = node.getAttribute(_dataAttributes.SOURCE_FILE);
-                        console.log(node.getAttribute('src'));
 
                         // Updated the state of the source file  using the index position of the source file in _sourceFiles.
                         var index = _storageFiles.indexOf(sourceFile);
