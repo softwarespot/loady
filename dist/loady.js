@@ -15,13 +15,13 @@ var _createClass = (function () { function defineProperties(target, props) { for
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
 ; // jshint ignore:line
-(function (global, name, iLoader, undefined) {
+(function (global, name, ILoader, undefined) {
     // Constants
 
     // Public API
     var _loadyAPI = function _loadyAPI(sourceFiles, callback) {
         // Create an instance of the internal loader class
-        var loady = new iLoader();
+        var loady = new ILoader();
 
         // Load the source file(s)
         loady.load(sourceFiles, callback);
@@ -239,6 +239,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
             value: function _loadScript(sourceFile) {
                 var node = document.createElement('script');
                 node.src = sourceFile;
+
                 // node.text = file;
 
                 // node.type = 'text/javascript';

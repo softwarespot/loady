@@ -9,13 +9,13 @@
  * Note: This is NOT a replacement for module loaders available on the market
  */
 ; // jshint ignore:line
-((global, name, iLoader, undefined) => {
+((global, name, ILoader, undefined) => {
     // Constants
 
     // Public API
     const _loadyAPI = (sourceFiles, callback) => {
         // Create an instance of the internal loader class
-        const loady = new iLoader();
+        const loady = new ILoader();
 
         // Load the source file(s)
         loady.load(sourceFiles, callback);
@@ -223,6 +223,7 @@
         _loadScript(sourceFile) {
             const node = document.createElement('script');
             node.src = sourceFile;
+
             // node.text = file;
 
             // node.type = 'text/javascript';
