@@ -133,32 +133,7 @@
          * @return {undefined}
          */
         constructor() {
-            this.destroy();
-        }
-
-        /**
-         * Tidy up resources i.e. good housekeeping
-         *
-         * @return {undefined}
-         */
-        destroy() {
-            // Final callback function after all scripts have been loaded successfully or not
-            this._callback = null;
-
-            // Currently loaded total count
-            //
-            // Note: The loaded count is set to -1, due to this.onCompleted incrementing by 1 and checking against this._length,
-            // which right now is set to 0. So this is utilised during pre-checks
-            this._loaded = -1;
-
-            // An array of successfully loaded source file(s)
-            this._called = null;
-
-            // An array of source file(s) initially passed to the module
-            this._files = null;
-
-            // Length of the source file(s) initially passed to the module
-            this._length = 0;
+            this._destroy();
         }
 
         /**
@@ -176,7 +151,7 @@
             }
 
             // Destroy the previous contents
-            this.destroy();
+            this._destroy();
 
             // Coerce as an array if the source file is a string
             if (isString(sourceFiles)) {
@@ -188,7 +163,7 @@
 
             // Check if the source file(s) argument is not an array or is empty
             if (!isArray(sourceFiles) || sourceFiles.length === 0) {
-                this.onCompleted(false);
+                this._onCompleted(false);
                 return;
             }
 
@@ -205,13 +180,38 @@
                 // Check for duplicate source file(s)
                 const index = _storageFiles.indexOf(sourceFile);
                 if (index !== -1) {
-                    this.onCompleted(_storageState[index]);
+                    this._onCompleted(_storageState[index]);
                     continue;
                 }
 
                 // Load the script file and append to the current document
-                this.loadScript(sourceFile);
+                this._loadScript(sourceFile);
             }
+        }
+
+        /**
+         * Tidy up resources i.e. good housekeeping
+         *
+         * @return {undefined}
+         */
+        _destroy() {
+            // Final callback function after all scripts have been loaded successfully or not
+            this._callback = null;
+
+            // Currently loaded total count
+            //
+            // Note: The loaded count is set to -1, due to this._onCompleted incrementing by 1 and checking against this._length,
+            // which right now is set to 0. So this is utilised during pre-checks
+            this._loaded = -1;
+
+            // An array of successfully loaded source file(s)
+            this._called = null;
+
+            // An array of source file(s) initially passed to the module
+            this._files = null;
+
+            // Length of the source file(s) initially passed to the module
+            this._length = 0;
         }
 
         /**
@@ -220,8 +220,8 @@
          * @param {string} sourceFile Script source location that can be absolute or relative
          * @return {undefined}
          */
-        loadScript(sourceFile) {
-            const node = document.createElement('SCRIPT');
+        _loadScript(sourceFile) {
+            const node = document.createElement('script');
             node.src = sourceFile;
             // node.text = file;
 
@@ -234,8 +234,8 @@
 
             // Attach events
             // Note: Bind is used to 'bind' to the context of 'this' i.e. the current object
-            node.addEventListener('load', this.onLoad.bind(this), false);
-            node.addEventListener('error', this.onLoad.bind(this), false);
+            node.addEventListener('load', this._onLoad.bind(this), false);
+            node.addEventListener('error', this._onLoad.bind(this), false);
 
             // Append to the HEAD node
             _head.appendChild(node);
@@ -250,7 +250,7 @@
          * @param {boolean} isSuccess Whether the request was successful or not
          * @return {undefined}
          */
-        onCompleted(isSuccess) {
+        _onCompleted(isSuccess) {
             // If not equal to the boolean type and true, then automatically assume as false
             if (isSuccess !== true) {
                 isSuccess = false;
@@ -261,7 +261,7 @@
 
             if (this._length === this._loaded) {
                 this._callback.apply(this, [this._called, isSuccess]);
-                this.destroy();
+                this._destroy();
             }
         }
 
@@ -271,7 +271,7 @@
          * @param {event} event Event object passed by the event listener
          * @return {undefined}
          */
-        onLoad(event) {
+        _onLoad(event) {
             // Store the type of event and whether it was a 'load' or 'error' type event
             const type = event.type;
             const isLoaded = type === 'load';
@@ -283,8 +283,8 @@
                 }
 
                 // Remove assigned events
-                node.removeEventListener('load', this.onLoad, false);
-                node.removeEventListener('error', this.onLoad, false);
+                node.removeEventListener('load', this._onLoad, false);
+                node.removeEventListener('error', this._onLoad, false);
 
                 // Push the state of the source file. If loaded will be true; otherwise, false
                 _storageState.push(isLoaded);
@@ -298,7 +298,7 @@
                     this._called.push(sourceFile);
                 }
 
-                this.onCompleted(true);
+                this._onCompleted(true);
             }
         }
 
