@@ -80,23 +80,25 @@
     const _objectToString = global.Object.prototype.toString;
 
     /**
-     * Check if a variable is an array datatype
-     *
-     * @param {mixed} value Value to check
-     * @returns {boolean} True the value is an array datatype; otherwise, false
-     */
-    const isArray = global.Array.isArray;
-
-    /**
      * Check if a variable is a function datatype
      *
      * @param {mixed} value Value to check
      * @returns {boolean} True the value is a function datatype; otherwise, false
      */
-    function isFunction(value) {
-        const tag = isObject(value) ? _objectToString.call(value) : '';
+    function _isFunction(value) {
+        const tag = _isObject(value) ? _objectToString.call(value) : '';
         return tag === _objectStrings.FUNCTION || tag === _objectStrings.GENERATOR;
     }
+
+    /**
+     * Check if a variable is an array datatype
+     *
+     * @param {mixed} value Value to check
+     * @returns {boolean} True the value is an array datatype; otherwise, false
+     */
+    const _isArray = _isFunction(global.Array.isArray) ? global.Array.isArray : function (value) {
+        return _objectToString.call(value) === _objectStrings.ARRAY;
+    };
 
     /**
      * Check if a variable is an object
@@ -104,7 +106,7 @@
      * @param {mixed} value Value to check
      * @returns {boolean} True the value is an object; otherwise, false
      */
-    function isObject(value) {
+    function _isObject(value) {
         // Store the typeof value
         const type = typeof value;
 
@@ -119,7 +121,7 @@
      * @param {mixed} value Value to check
      * @returns {boolean} True the value is a string datatype; otherwise, false
      */
-    function isString(value) {
+    function _isString(value) {
         return typeof value === 'string' || _objectToString.call(value) === _objectStrings.STRING;
     }
 
@@ -146,7 +148,7 @@
          */
         load(sourceFiles, callback) {
             // This is the only error thrown, due to a callback being required
-            if (!isFunction(callback)) {
+            if (!_isFunction(callback)) {
                 throw new global.Error('Loady: The callback function argument is not a valid function type.');
             }
 
@@ -154,7 +156,7 @@
             this._destroy();
 
             // Coerce as an array if the source file is a string
-            if (isString(sourceFiles)) {
+            if (_isString(sourceFiles)) {
                 sourceFiles = [sourceFiles];
             }
 
@@ -162,7 +164,7 @@
             this._callback = callback;
 
             // Check if the source file(s) argument is not an array or is empty
-            if (!isArray(sourceFiles) || sourceFiles.length === 0) {
+            if (!_isArray(sourceFiles) || sourceFiles.length === 0) {
                 this._onCompleted(false);
                 return;
             }
