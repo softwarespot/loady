@@ -37,7 +37,7 @@
 
     // Check if Loady has already been registered beforehand and if so, throw an error
     if (global[name] !== undefined) {
-        throw new Error('Loady appears to be already registered with the global object, therefore the module has not been registered.');
+        throw new global.Error('Loady appears to be already registered with the global object, therefore the module has not been registered.');
     }
 
     // Append the Loady API to the global object reference
