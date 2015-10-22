@@ -142,7 +142,7 @@
          * Load an array of source file(s)
          *
          * @param {array} sourceFiles An array of source file(s). Note: .js is optional and will be appended if not present
-         * @param {function} callback Callback function to invoke on completion successful or not.
+         * @param {function} callback Callback function to invoke on completion successful or not
          * The arguments passed to the callback function is an array of loaded scripts and a success parameter of either true or false
          * @return {undefined}
          */
@@ -294,7 +294,7 @@
                     // Get the source file directly from the data-* attribute. Could use node.getAttribute('src')
                     const sourceFile = node.getAttribute(_dataAttributes.SOURCE_FILE);
 
-                    // Updated the state of the source file using the index position of the source file in _sourceFiles.
+                    // Updated the state of the source file using the index position of the source file in _sourceFiles
                     const index = _storageFiles.indexOf(sourceFile);
                     if (index !== -1) {
                         _storageState[index] = isLoaded;
