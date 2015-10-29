@@ -94,9 +94,9 @@
      * Check if a variable is an array datatype
      *
      * @param {mixed} value Value to check
-     * @returns {boolean} True the value is an array datatype; otherwise, false
+     * @returns {boolean} True, the value is an array datatype; otherwise, false
      */
-    const _isArray = _isFunction(global.Array.isArray) ? global.Array.isArray : function (value) {
+    const _isArray = _isFunction(global.Array.isArray) ? global.Array.isArray : (value) => {
         return _objectToString.call(value) === _objectStrings.ARRAY;
     };
 
@@ -104,7 +104,7 @@
      * Check if a variable is an object
      *
      * @param {mixed} value Value to check
-     * @returns {boolean} True the value is an object; otherwise, false
+     * @returns {boolean} True, the value is an object; otherwise, false
      */
     function _isObject(value) {
         // Store the typeof value
@@ -119,7 +119,7 @@
      * Check if a variable is a string datatype
      *
      * @param {mixed} value Value to check
-     * @returns {boolean} True the value is a string datatype; otherwise, false
+     * @returns {boolean} True, the value is a string datatype; otherwise, false
      */
     function _isString(value) {
         return typeof value === 'string' || _objectToString.call(value) === _objectStrings.STRING;
