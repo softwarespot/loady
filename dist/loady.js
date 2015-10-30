@@ -1,3 +1,11 @@
+'use strict';
+
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _typeof(obj) { return obj && obj.constructor === Symbol ? "symbol" : typeof obj; }
+
 /*
  * Loady module
  * https://github.com/softwarespot/loady
@@ -8,12 +16,6 @@
  * Loady module - Load external JavaScript file(s) and append it to the head of the current document
  * Note: This is NOT a replacement for module loaders available on the market
  */
-'use strict';
-
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
 ; // jshint ignore:line
 (function (global, name, ILoader, undefined) {
     // Constants
@@ -114,7 +116,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
      */
     function _isObject(value) {
         // Store the typeof value
-        var type = typeof value;
+        var type = typeof value === 'undefined' ? 'undefined' : _typeof(value);
 
         // !!value is basically checking if value is not 'truthy' e.g. null or zero and then inverts that boolean value
         // So, !'Some test' is false and then inverting false is true. There if value contains 'something', continue
@@ -187,7 +189,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
                 this._files = sourceFiles;
                 this._length = sourceFiles.length;
 
-                for (var i = 0, _length = this._length; i < _length; i++) {
+                for (var i = 0, length = this._length; i < length; i++) {
                     // Strip and append .js to the source file
                     var sourceFile = sourceFiles[i].replace(_reJsExtension, '') + '.js';
 
@@ -208,6 +210,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
              *
              * @return {undefined}
              */
+
         }, {
             key: '_destroy',
             value: function _destroy() {
@@ -236,6 +239,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
              * @param {string} sourceFile Script source location that can be absolute or relative
              * @return {undefined}
              */
+
         }, {
             key: '_loadScript',
             value: function _loadScript(sourceFile) {
@@ -269,6 +273,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
              * @param {boolean} isSuccess Whether the request was successful or not
              * @return {undefined}
              */
+
         }, {
             key: '_onCompleted',
             value: function _onCompleted(isSuccess) {
@@ -292,6 +297,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
              * @param {event} event Event object passed by the event listener
              * @return {undefined}
              */
+
         }, {
             key: '_onLoad',
             value: function _onLoad(event) {
@@ -333,6 +339,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
              *
              * @return {string} Module version number
              */
+
         }, {
             key: 'getVersion',
             value: function getVersion() {

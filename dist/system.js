@@ -1,6 +1,6 @@
-// IIFE - Immediately Invoked Function Expression (no global variables are leaked, apart from system of course)
 'use strict';
 
+// IIFE - Immediately Invoked Function Expression (no global variables are leaked, apart from system of course)
 (function (global) {
     function init() {
         global.alert('Init: The following output was loaded directly from system.js, but you will notice there is no script tag for loading this JavaScript file in the HTML source.');
