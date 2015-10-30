@@ -43,7 +43,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
     // Check if Loady has already been registered beforehand and if so, throw an error
     if (global[name] !== undefined) {
-        throw new Error('Loady appears to be already registered with the global object, therefore the module has not been registered.');
+        throw new global.Error('Loady appears to be already registered with the global object, therefore the module has not been registered.');
     }
 
     // Append the Loady API to the global object reference
@@ -86,31 +86,33 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
     var _objectToString = global.Object.prototype.toString;
 
     /**
-     * Check if a variable is an array datatype
-     *
-     * @param {mixed} value Value to check
-     * @returns {boolean} True the value is an array datatype; otherwise, false
-     */
-    var isArray = global.Array.isArray;
-
-    /**
      * Check if a variable is a function datatype
      *
      * @param {mixed} value Value to check
      * @returns {boolean} True the value is a function datatype; otherwise, false
      */
-    function isFunction(value) {
-        var tag = isObject(value) ? _objectToString.call(value) : '';
+    function _isFunction(value) {
+        var tag = _isObject(value) ? _objectToString.call(value) : '';
         return tag === _objectStrings.FUNCTION || tag === _objectStrings.GENERATOR;
     }
+
+    /**
+     * Check if a variable is an array datatype
+     *
+     * @param {mixed} value Value to check
+     * @returns {boolean} True, the value is an array datatype; otherwise, false
+     */
+    var _isArray = _isFunction(global.Array.isArray) ? global.Array.isArray : function (value) {
+        return _objectToString.call(value) === _objectStrings.ARRAY;
+    };
 
     /**
      * Check if a variable is an object
      *
      * @param {mixed} value Value to check
-     * @returns {boolean} True the value is an object; otherwise, false
+     * @returns {boolean} True, the value is an object; otherwise, false
      */
-    function isObject(value) {
+    function _isObject(value) {
         // Store the typeof value
         var type = typeof value;
 
@@ -123,9 +125,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
      * Check if a variable is a string datatype
      *
      * @param {mixed} value Value to check
-     * @returns {boolean} True the value is a string datatype; otherwise, false
+     * @returns {boolean} True, the value is a string datatype; otherwise, false
      */
-    function isString(value) {
+    function _isString(value) {
         return typeof value === 'string' || _objectToString.call(value) === _objectStrings.STRING;
     }
 
@@ -149,7 +151,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
          * Load an array of source file(s)
          *
          * @param {array} sourceFiles An array of source file(s). Note: .js is optional and will be appended if not present
-         * @param {function} callback Callback function to invoke on completion successful or not.
+         * @param {function} callback Callback function to invoke on completion successful or not
          * The arguments passed to the callback function is an array of loaded scripts and a success parameter of either true or false
          * @return {undefined}
          */
@@ -158,7 +160,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
             key: 'load',
             value: function load(sourceFiles, callback) {
                 // This is the only error thrown, due to a callback being required
-                if (!isFunction(callback)) {
+                if (!_isFunction(callback)) {
                     throw new global.Error('Loady: The callback function argument is not a valid function type.');
                 }
 
@@ -166,7 +168,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
                 this._destroy();
 
                 // Coerce as an array if the source file is a string
-                if (isString(sourceFiles)) {
+                if (_isString(sourceFiles)) {
                     sourceFiles = [sourceFiles];
                 }
 
@@ -174,7 +176,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
                 this._callback = callback;
 
                 // Check if the source file(s) argument is not an array or is empty
-                if (!isArray(sourceFiles) || sourceFiles.length === 0) {
+                if (!_isArray(sourceFiles) || sourceFiles.length === 0) {
                     this._onCompleted(false);
                     return;
                 }
@@ -312,7 +314,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
                         // Get the source file directly from the data-* attribute. Could use node.getAttribute('src')
                         var sourceFile = node.getAttribute(_dataAttributes.SOURCE_FILE);
 
-                        // Updated the state of the source file  using the index position of the source file in _sourceFiles.
+                        // Updated the state of the source file using the index position of the source file in _sourceFiles
                         var index = _storageFiles.indexOf(sourceFile);
                         if (index !== -1) {
                             _storageState[index] = isLoaded;
