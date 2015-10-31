@@ -50,7 +50,7 @@
     const VERSION = '0.1.0';
 
     const _dataAttributes = {
-        SOURCE_FILE: 'data-loady-sourcefile'
+        SOURCE_FILE: 'data-loady-sourcefile',
     };
 
     // Store the document object reference
@@ -73,7 +73,7 @@
     const _objectStrings = {
         FUNCTION: '[object Function]',
         GENERATOR: '[object GeneratorFunction]',
-        STRING: '[object String]'
+        STRING: '[object String]',
     };
 
     // Store the toString method
@@ -318,4 +318,4 @@
         }
     };
 
-}(window)); // Can't be 'this' with babelJS, as it gets set to 'undefined'
+}(window));
