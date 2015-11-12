@@ -60,7 +60,7 @@
     const _head = document.head || document.getElementsByTagName('head')[0];
 
     // Regular expression to strip the JS extension
-    const _reJsExtension = /\.js$/;
+    const _reJSExtension = /\.js$/;
 
     // Store previously loaded source file(s)
     const _storageFiles = [];
@@ -83,10 +83,10 @@
      * Check if a variable is a function datatype
      *
      * @param {mixed} value Value to check
-     * @returns {boolean} True the value is a function datatype; otherwise, false
+     * @returns {boolean} True, the value is a function datatype; otherwise, false
      */
     function _isFunction(value) {
-        const tag = _isObject(value) ? _objectToString.call(value) : '';
+        const tag = _isObject(value) ? _objectToString.call(value) : null;
         return tag === _objectStrings.FUNCTION || tag === _objectStrings.GENERATOR;
     }
 
@@ -139,6 +139,15 @@
         }
 
         /**
+         * Get the version number of the module
+         *
+         * @return {string} Module version number
+         */
+        getVersion() {
+            return VERSION;
+        }
+
+        /**
          * Load an array of source file(s)
          *
          * @param {array} sourceFiles An array of source file(s). Note: .js is optional and will be appended if not present
@@ -177,7 +186,7 @@
 
             for (let i = 0, length = this._length; i < length; i++) {
                 // Strip and append .js to the source file
-                const sourceFile = sourceFiles[i].replace(_reJsExtension, '') + '.js';
+                const sourceFile = sourceFiles[i].replace(_reJSExtension, '') + '.js';
 
                 // Check for duplicate source file(s) that were loaded in the past
                 const index = _storageFiles.indexOf(sourceFile);
@@ -306,15 +315,6 @@
 
                 this._onCompleted(true);
             }
-        }
-
-        /**
-         * Get the version number of the module
-         *
-         * @return {string} Module version number
-         */
-        getVersion() {
-            return VERSION;
         }
     };
 
