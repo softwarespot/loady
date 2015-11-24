@@ -57,9 +57,8 @@ function _typeof(obj) { return obj && obj.constructor === Symbol ? "symbol" : ty
     // Version number of the module
     var VERSION = '0.1.0';
 
-    var _dataAttributes = {
-        SOURCE_FILE: 'data-loady-sourcefile'
-    };
+    // Data attribute to distinguish between a standard script element and a 'loady' script element
+    var DATA_ATTRIBUTE_SOURCE_FILE = 'data-loady-sourcefile';
 
     // Store the document object reference
     var document = global.document;
@@ -68,7 +67,7 @@ function _typeof(obj) { return obj && obj.constructor === Symbol ? "symbol" : ty
     var _head = document.head || document.getElementsByTagName('head')[0];
 
     // Regular expression to strip the JS extension
-    var _reJsExtension = /\.js$/;
+    var _reJSExtension = /\.js$/;
 
     // Store previously loaded source file(s)
     var _storageFiles = [];
@@ -78,11 +77,10 @@ function _typeof(obj) { return obj && obj.constructor === Symbol ? "symbol" : ty
 
     // Return strings of toString() found on the Object prototype
     // Based on the implementation by lodash inc. is* function as well
-    var _objectStrings = {
-        FUNCTION: '[object Function]',
-        GENERATOR: '[object GeneratorFunction]',
-        STRING: '[object String]'
-    };
+    var _objectStringsArray = '[object Array]';
+    var _objectStringsFunction = '[object Function]';
+    var _objectStringsGenerator = '[object GeneratorFunction]';
+    var _objectStringsString = '[object String]';
 
     // Store the toString method
     var _objectToString = global.Object.prototype.toString;
@@ -91,11 +89,11 @@ function _typeof(obj) { return obj && obj.constructor === Symbol ? "symbol" : ty
      * Check if a variable is a function datatype
      *
      * @param {mixed} value Value to check
-     * @returns {boolean} True the value is a function datatype; otherwise, false
+     * @returns {boolean} True, the value is a function datatype; otherwise, false
      */
     function _isFunction(value) {
-        var tag = _isObject(value) ? _objectToString.call(value) : '';
-        return tag === _objectStrings.FUNCTION || tag === _objectStrings.GENERATOR;
+        var tag = _isObject(value) ? _objectToString.call(value) : null;
+        return tag === _objectStringsFunction || tag === _objectStringsGenerator;
     }
 
     /**
@@ -105,7 +103,7 @@ function _typeof(obj) { return obj && obj.constructor === Symbol ? "symbol" : ty
      * @returns {boolean} True, the value is an array datatype; otherwise, false
      */
     var _isArray = _isFunction(global.Array.isArray) ? global.Array.isArray : function (value) {
-        return _objectToString.call(value) === _objectStrings.ARRAY;
+        return _objectToString.call(value) === _objectStringsArray;
     };
 
     /**
@@ -130,7 +128,7 @@ function _typeof(obj) { return obj && obj.constructor === Symbol ? "symbol" : ty
      * @returns {boolean} True, the value is a string datatype; otherwise, false
      */
     function _isString(value) {
-        return typeof value === 'string' || _objectToString.call(value) === _objectStrings.STRING;
+        return typeof value === 'string' || _objectToString.call(value) === _objectStringsString;
     }
 
     /**
@@ -150,15 +148,27 @@ function _typeof(obj) { return obj && obj.constructor === Symbol ? "symbol" : ty
         }
 
         /**
-         * Load an array of source file(s)
+         * Get the version number of the module
          *
-         * @param {array} sourceFiles An array of source file(s). Note: .js is optional and will be appended if not present
-         * @param {function} callback Callback function to invoke on completion successful or not
-         * The arguments passed to the callback function is an array of loaded scripts and a success parameter of either true or false
-         * @return {undefined}
+         * @return {string} Module version number
          */
 
         _createClass(ILoader, [{
+            key: 'getVersion',
+            value: function getVersion() {
+                return VERSION;
+            }
+
+            /**
+             * Load an array of source file(s)
+             *
+             * @param {array} sourceFiles An array of source file(s). Note: .js is optional and will be appended if not present
+             * @param {function} callback Callback function to invoke on completion successful or not
+             * The arguments passed to the callback function is an array of loaded scripts and a success parameter of either true or false
+             * @return {undefined}
+             */
+
+        }, {
             key: 'load',
             value: function load(sourceFiles, callback) {
                 // This is the only error thrown, due to a callback being required
@@ -191,7 +201,7 @@ function _typeof(obj) { return obj && obj.constructor === Symbol ? "symbol" : ty
 
                 for (var i = 0, length = this._length; i < length; i++) {
                     // Strip and append .js to the source file
-                    var sourceFile = sourceFiles[i].replace(_reJsExtension, '') + '.js';
+                    var sourceFile = sourceFiles[i].replace(_reJSExtension, '') + '.js';
 
                     // Check for duplicate source file(s) that were loaded in the past
                     var index = _storageFiles.indexOf(sourceFile);
@@ -253,7 +263,7 @@ function _typeof(obj) { return obj && obj.constructor === Symbol ? "symbol" : ty
 
                 node.async = true;
 
-                node.setAttribute(_dataAttributes.SOURCE_FILE, sourceFile);
+                node.setAttribute(DATA_ATTRIBUTE_SOURCE_FILE, sourceFile);
 
                 // Attach events
                 // Note: Bind is used to 'bind' to the context of 'this' i.e. the current object
@@ -318,7 +328,7 @@ function _typeof(obj) { return obj && obj.constructor === Symbol ? "symbol" : ty
                     // Display details about the inserted SCRIPT node and script
                     if (isLoaded) {
                         // Get the source file directly from the data-* attribute. Could use node.getAttribute('src')
-                        var sourceFile = node.getAttribute(_dataAttributes.SOURCE_FILE);
+                        var sourceFile = node.getAttribute(DATA_ATTRIBUTE_SOURCE_FILE);
 
                         // Updated the state of the source file using the index position of the source file in _sourceFiles
                         var index = _storageFiles.indexOf(sourceFile);
@@ -333,20 +343,8 @@ function _typeof(obj) { return obj && obj.constructor === Symbol ? "symbol" : ty
                     this._onCompleted(true);
                 }
             }
-
-            /**
-             * Get the version number of the module
-             *
-             * @return {string} Module version number
-             */
-
-        }, {
-            key: 'getVersion',
-            value: function getVersion() {
-                return VERSION;
-            }
         }]);
 
         return ILoader;
     })();
-})(window)); // Can't be 'this' with babelJS, as it gets set to 'undefined'
+})(window));

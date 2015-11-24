@@ -49,9 +49,8 @@
     // Version number of the module
     const VERSION = '0.1.0';
 
-    const _dataAttributes = {
-        SOURCE_FILE: 'data-loady-sourcefile',
-    };
+    // Data attribute to distinguish between a standard script element and a 'loady' script element
+    var DATA_ATTRIBUTE_SOURCE_FILE = 'data-loady-sourcefile';
 
     // Store the document object reference
     const document = global.document;
@@ -70,11 +69,10 @@
 
     // Return strings of toString() found on the Object prototype
     // Based on the implementation by lodash inc. is* function as well
-    const _objectStrings = {
-        FUNCTION: '[object Function]',
-        GENERATOR: '[object GeneratorFunction]',
-        STRING: '[object String]',
-    };
+    const _objectStringsArray = '[object Array]';
+    const _objectStringsFunction = '[object Function]';
+    const _objectStringsGenerator = '[object GeneratorFunction]';
+    const _objectStringsString = '[object String]';
 
     // Store the toString method
     const _objectToString = global.Object.prototype.toString;
@@ -87,7 +85,7 @@
      */
     function _isFunction(value) {
         const tag = _isObject(value) ? _objectToString.call(value) : null;
-        return tag === _objectStrings.FUNCTION || tag === _objectStrings.GENERATOR;
+        return tag === _objectStringsFunction || tag === _objectStringsGenerator;
     }
 
     /**
@@ -97,7 +95,7 @@
      * @returns {boolean} True, the value is an array datatype; otherwise, false
      */
     const _isArray = _isFunction(global.Array.isArray) ? global.Array.isArray : (value) => {
-        return _objectToString.call(value) === _objectStrings.ARRAY;
+        return _objectToString.call(value) === _objectStringsArray;
     };
 
     /**
@@ -122,7 +120,7 @@
      * @returns {boolean} True, the value is a string datatype; otherwise, false
      */
     function _isString(value) {
-        return typeof value === 'string' || _objectToString.call(value) === _objectStrings.STRING;
+        return typeof value === 'string' || _objectToString.call(value) === _objectStringsString;
     }
 
     /**
@@ -242,7 +240,7 @@
 
             node.async = true;
 
-            node.setAttribute(_dataAttributes.SOURCE_FILE, sourceFile);
+            node.setAttribute(DATA_ATTRIBUTE_SOURCE_FILE, sourceFile);
 
             // Attach events
             // Note: Bind is used to 'bind' to the context of 'this' i.e. the current object
@@ -301,7 +299,7 @@
                 // Display details about the inserted SCRIPT node and script
                 if (isLoaded) {
                     // Get the source file directly from the data-* attribute. Could use node.getAttribute('src')
-                    const sourceFile = node.getAttribute(_dataAttributes.SOURCE_FILE);
+                    const sourceFile = node.getAttribute(DATA_ATTRIBUTE_SOURCE_FILE);
 
                     // Updated the state of the source file using the index position of the source file in _sourceFiles
                     const index = _storageFiles.indexOf(sourceFile);
@@ -317,5 +315,4 @@
             }
         }
     };
-
 }(window));
