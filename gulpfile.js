@@ -34,7 +34,7 @@ var Assets = {
         './system.js',
         './user.js',
     ],
-    source: '\.',
+    source: './',
 };
 Assets.other.push(Assets.source + Assets.main);
 
