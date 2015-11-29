@@ -12,7 +12,7 @@ var fs = require('fs');
 var merge = require('merge2');
 
 // See the uglify documentation for more details
-var uglifySettings = {
+var _uglifySettings = {
     compress: {
         comparisons: true,
         conditionals: true,
@@ -34,50 +34,51 @@ var Assets = {
         './system.js',
         './user.js',
     ],
+    source: '\.',
 };
-Assets.other.push('./' + Assets.main);
+Assets.other.push(Assets.source + Assets.main);
 
 // Clean the 'dist' directory
-gulp.task('clean', function(cb) {
+gulp.task('clean', function cleanTask(cb) {
     del([Assets.dest + '/*.js'], cb);
 });
 
 // Run the babel transpiler to convert from ES2015 to ES5
-gulp.task('es6to5', function() {
+gulp.task('es6to5', function es6To5Task() {
     return gulp.src(Assets.other)
         .pipe(babel({
             presets: ['es2015'],
         }))
-        .pipe(gulp.dest('./' + Assets.dest));
+        .pipe(gulp.dest(Assets.source + Assets.dest));
 });
 
 // Check the code meets the following standards outlined in .jshintrc
-gulp.task('jshint', function() {
-    return gulp.src('./' + Assets.main)
+gulp.task('jshint', function jsHintTask() {
+    return gulp.src(Assets.source + Assets.main)
         .pipe(jshint())
         .pipe(jshint.reporter('jshint-stylish'));
 });
 
 // Uglify aka minify the main file
-gulp.task('uglify', ['es6to5'], function() {
-    return gulp.src('./' + Assets.dest + '/' + Assets.main)
+gulp.task('uglify', ['es6to5'], function uglifyTask() {
+    return gulp.src(Assets.source + Assets.dest + '/' + Assets.main)
         .pipe(concat(Assets.minified))
-        .pipe(uglify(uglifySettings))
+        .pipe(uglify(_uglifySettings))
         .pipe(rename(Assets.minified))
-        .pipe(gulp.dest('./' + Assets.dest));
+        .pipe(gulp.dest(Assets.source + Assets.dest));
 });
 
 // Watch for changes to the main file
-gulp.task('watch', function() {
-    gulp.watch('./' + Assets.main, ['jshint', 'uglify']);
+gulp.task('watch', function watchTask() {
+    gulp.watch(Assets.source + Assets.main, ['jshint', 'uglify']);
 });
 
 // Update version numbers based on the main file version comment
-gulp.task('version', function() {
+gulp.task('version', function versionTask() {
     // SemVer matching is done using (?:\d+\.){2}\d+
 
     var reVersion = /\n\s*\*\s+Version:\s+((?:\d+\.){2}\d+)/;
-    var version = fs.readFileSync('./' + Assets.main, {
+    var version = fs.readFileSync(Assets.source + Assets.main, {
         encoding: 'utf8',
     })
 
@@ -88,16 +89,16 @@ gulp.task('version', function() {
 
     // package.json version property
     streams.add(
-        gulp.src('./package.json')
+        gulp.src(Assets.source + 'package.json')
         .pipe(replace(/"version":\s+"(?:\d+\.){2}\d+",/, '"version": "' + version + '",'))
-        .pipe(gulp.dest('./'))
+        .pipe(gulp.dest(Assets.source))
     );
 
     // README.md version number
     streams.add(
-        gulp.src('./README.md')
+        gulp.src(Assets.source + 'README.md')
         .pipe(replace(/^#\s+([\w\-]+)\s+-\s+v(?:\d+\.){2}\d+/, '# $1 - v' + version))
-        .pipe(gulp.dest('./'))
+        .pipe(gulp.dest(Assets.source))
     );
 
     return streams;
