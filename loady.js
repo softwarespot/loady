@@ -52,16 +52,17 @@
     // Data attribute to distinguish between a standard script element and a 'loady' script element
     const DATA_ATTRIBUTE_SOURCE_FILE = 'data-loady-sourcefile';
 
+    // indexOf value when a value is not found
     const IS_NOT_FOUND = -1;
 
     // Store the document object reference
-    const document = global.document;
+    const _document = global.document;
 
     // Store the first head node
-    const _head = document.head || document.getElementsByTagName('head')[0];
+    const _head = _document.head || _document.getElementsByTagName('head')[0];
 
     // Regular expression to strip the JS extension
-    const _reJSExtension = /\.js$/;
+    const _reJSExtension = /(?:\.js$)/;
 
     // Store previously loaded source file(s)
     const _storageFiles = [];
@@ -154,23 +155,28 @@
          * @return {promise} Returns a promise which in turns passes the successfully loaded scripts, regardless or success or failure
          */
         load(sourceFiles) {
-            // Coerce as an array if the source file is a string
-            if (_isString(sourceFiles)) {
+            // Coerce as an array if not already an array
+            if (!_isArray(sourceFiles)) {
                 sourceFiles = [sourceFiles];
             }
+
+            // Remove invalid source files(s)
+            sourceFiles = sourceFiles.filter((sourceFile) => {
+                return _isString(sourceFile) && sourceFile.length > 0;
+            });
 
             // Destroy the previous contents
             this._destroy();
 
             // Create a new promise object
             const promise = new window.Promise((resolve, reject) => {
-                // Expose the internal resolve and reject function
+                // Expose the internal resolve and reject functions
                 this._resolve = resolve;
                 this._reject = reject;
             });
 
             // Check if the source file(s) argument is not an array or is empty
-            if (!_isArray(sourceFiles) || sourceFiles.length === 0) {
+            if (sourceFiles.length === 0) {
                 // Set to false, as a series error occurred before loading
                 this._isSuccess = false;
                 this._onCompleted();
@@ -184,7 +190,7 @@
             this._called = [];
             this._initiallyLoaded = sourceFiles.length;
 
-            // Map, filter and iterate over the passed source files
+            // Map, filter and iterate over the passed source files(s)
             sourceFiles
                 .map((sourceFile) => {
                     // Strip and append ".js" to the source file if it doesn't already exist
@@ -245,7 +251,7 @@
          * @return {undefined}
          */
         _loadScript(sourceFile) {
-            const node = document.createElement('script');
+            const node = _document.createElement('script');
             node.src = sourceFile;
 
             // node.text = file;

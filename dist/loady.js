@@ -60,16 +60,17 @@ function _typeof(obj) { return obj && obj.constructor === Symbol ? "symbol" : ty
     // Data attribute to distinguish between a standard script element and a 'loady' script element
     var DATA_ATTRIBUTE_SOURCE_FILE = 'data-loady-sourcefile';
 
+    // indexOf value when a value is not found
     var IS_NOT_FOUND = -1;
 
     // Store the document object reference
-    var document = global.document;
+    var _document = global.document;
 
     // Store the first head node
-    var _head = document.head || document.getElementsByTagName('head')[0];
+    var _head = _document.head || _document.getElementsByTagName('head')[0];
 
     // Regular expression to strip the JS extension
-    var _reJSExtension = /\.js$/;
+    var _reJSExtension = /(?:\.js$)/;
 
     // Store previously loaded source file(s)
     var _storageFiles = [];
@@ -173,23 +174,28 @@ function _typeof(obj) { return obj && obj.constructor === Symbol ? "symbol" : ty
             value: function load(sourceFiles) {
                 var _this = this;
 
-                // Coerce as an array if the source file is a string
-                if (_isString(sourceFiles)) {
+                // Coerce as an array if not already an array
+                if (!_isArray(sourceFiles)) {
                     sourceFiles = [sourceFiles];
                 }
+
+                // Remove invalid source files(s)
+                sourceFiles = sourceFiles.filter(function (sourceFile) {
+                    return _isString(sourceFile) && sourceFile.length > 0;
+                });
 
                 // Destroy the previous contents
                 this._destroy();
 
                 // Create a new promise object
                 var promise = new window.Promise(function (resolve, reject) {
-                    // Expose the internal resolve and reject function
+                    // Expose the internal resolve and reject functions
                     _this._resolve = resolve;
                     _this._reject = reject;
                 });
 
                 // Check if the source file(s) argument is not an array or is empty
-                if (!_isArray(sourceFiles) || sourceFiles.length === 0) {
+                if (sourceFiles.length === 0) {
                     // Set to false, as a series error occurred before loading
                     this._isSuccess = false;
                     this._onCompleted();
@@ -203,7 +209,7 @@ function _typeof(obj) { return obj && obj.constructor === Symbol ? "symbol" : ty
                 this._called = [];
                 this._initiallyLoaded = sourceFiles.length;
 
-                // Map, filter and iterate over the passed source files
+                // Map, filter and iterate over the passed source files(s)
                 sourceFiles.map(function (sourceFile) {
                     // Strip and append ".js" to the source file if it doesn't already exist
                     return sourceFile.replace(_reJSExtension, '') + '.js';
@@ -267,7 +273,7 @@ function _typeof(obj) { return obj && obj.constructor === Symbol ? "symbol" : ty
         }, {
             key: '_loadScript',
             value: function _loadScript(sourceFile) {
-                var node = document.createElement('script');
+                var node = _document.createElement('script');
                 node.src = sourceFile;
 
                 // node.text = file;
