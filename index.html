@@ -35,19 +35,22 @@
     <script>
         /* global App, loady */
         $(function () {
-            // Add the same script multiple times (which it won't course) to the current document
-            loady(['dist/system', 'dist/system.js', 'dist/user'], function (scripts, isSuccess) {
-                if (!isSuccess) {
-                    console.log('index.html: An error occurred with loading the script files');
-                    return;
-                }
+            // Add the following scripts, including a duplicate script to the current document
+            var promise = loady(['dist/system', 'dist/system.js', 'dist/user']);
 
-                console.log('index.html: This is called only once after all scripts have been loaded, yippee! { %o, %s }', scripts, isSuccess);
+            // If all scripts are successfully loaded, then call the following function on resolved
+            promise.then(function promiseThen(scripts) {
+                window.console.log('index.html: This is called only once after all scripts have been loaded, yippee! { %o }', scripts);
 
-                // Call the namespace + module + intial in system.js and user.js
+                // Call the namespace + module + init in both system.js and user.js
                 App.system.init();
                 App.user.init();
             });
+
+            // If failure occurs, then call the following function on rejected
+            // promise.catch(function promiseCatch(scripts) {
+            //     window.console.log('index.html: An error occurred with loading the script files { %o }', scripts);
+            // });
         });
     </script>
 </body>

@@ -13,12 +13,12 @@
     // Constants
 
     // Public API
-    const _loadyAPI = (sourceFiles, callback) => {
+    const _loadyAPI = (sourceFiles) => {
         // Create an instance of the internal loader class
         const loady = new ILoader();
 
         // Load the source file(s)
-        loady.load(sourceFiles, callback);
+        return loady.load(sourceFiles);
     };
 
     // Store a 'module' reference
@@ -50,7 +50,9 @@
     const VERSION = '0.1.0';
 
     // Data attribute to distinguish between a standard script element and a 'loady' script element
-    var DATA_ATTRIBUTE_SOURCE_FILE = 'data-loady-sourcefile';
+    const DATA_ATTRIBUTE_SOURCE_FILE = 'data-loady-sourcefile';
+
+    const IS_NOT_FOUND = -1;
 
     // Store the document object reference
     const document = global.document;
@@ -149,53 +151,65 @@
          * Load an array of source file(s)
          *
          * @param {array} sourceFiles An array of source file(s). Note: .js is optional and will be appended if not present
-         * @param {function} callback Callback function to invoke on completion successful or not
-         * The arguments passed to the callback function is an array of loaded scripts and a success parameter of either true or false
-         * @return {undefined}
+         * @return {promise} Returns a promise which in turns passes the successfully loaded scripts, regardless or success or failure
          */
-        load(sourceFiles, callback) {
-            // This is the only error thrown, due to a callback being required
-            if (!_isFunction(callback)) {
-                throw new global.Error('Loady: The callback function argument is not a valid function type.');
-            }
-
-            // Destroy the previous contents
-            this._destroy();
-
+        load(sourceFiles) {
             // Coerce as an array if the source file is a string
             if (_isString(sourceFiles)) {
                 sourceFiles = [sourceFiles];
             }
 
-            // Set the callback function property
-            this._callback = callback;
+            // Destroy the previous contents
+            this._destroy();
+
+            // Create a new promise object
+            const promise = new window.Promise((resolve, reject) => {
+                // Expose the internal resolve and reject function
+                this._resolve = resolve;
+                this._reject = reject;
+            });
 
             // Check if the source file(s) argument is not an array or is empty
             if (!_isArray(sourceFiles) || sourceFiles.length === 0) {
-                this._onCompleted(false);
-                return;
+                // Set to false, as a series error occurred before loading
+                this._isSuccess = false;
+                this._onCompleted();
+
+                // Return the promise
+                return promise;
             }
 
-            // Set to 0, as now all the important pre-checks have passed
-            this._loaded = 0;
+            // Set to 0, as all necessary pre-checks have taken place
+            this._allLoaded = 0;
             this._called = [];
-            this._files = sourceFiles;
-            this._length = sourceFiles.length;
+            this._initiallyLoaded = sourceFiles.length;
 
-            for (let i = 0, length = this._length; i < length; i++) {
-                // Strip and append .js to the source file
-                const sourceFile = sourceFiles[i].replace(_reJSExtension, '') + '.js';
+            // Map, filter and iterate over the passed source files
+            sourceFiles
+                .map((sourceFile) => {
+                    // Strip and append ".js" to the source file if it doesn't already exist
+                    return sourceFile.replace(_reJSExtension, '') + '.js';
+                })
+                .filter((sourceFile) => {
+                    // Check for duplicate source file(s) that were loaded in the past
+                    const index = _storageFiles.indexOf(sourceFile);
+                    const isNotFound = index === IS_NOT_FOUND;
 
-                // Check for duplicate source file(s) that were loaded in the past
-                const index = _storageFiles.indexOf(sourceFile);
-                if (index !== -1) {
-                    this._onCompleted(_storageState[index]);
-                    continue;
-                }
+                    // If found, then check the current state
+                    if (!isNotFound) {
+                        this._onCompleted(_storageState[index]);
+                    }
 
-                // Load the script file and append to the current document
-                this._loadScript(sourceFile);
-            }
+                    // Filter only those which haven't yet been loaded
+                    return isNotFound;
+                })
+                .forEach((sourceFile) => {
+                    // Load the script file and append to the current document
+                    this._loadScript(sourceFile);
+                });
+
+            // Return the promise
+            return promise;
         }
 
         /**
@@ -204,23 +218,24 @@
          * @return {undefined}
          */
         _destroy() {
-            // Final callback function after all scripts have been loaded successfully or not
-            this._callback = null;
-
             // Currently loaded total count
             //
-            // Note: The loaded count is set to -1, due to this._onCompleted incrementing by 1 and checking against this._length,
+            // Note: The loaded count is set to -1, due to this._onCompleted incrementing by 1 and checking against this._initiallyLoaded,
             // which right now is set to 0. So this is utilised during pre-checks
-            this._loaded = -1;
+            this._allLoaded = -1;
 
             // An array of successfully loaded source file(s)
             this._called = null;
 
-            // An array of source file(s) initially passed to the module
-            this._files = null;
-
             // Length of the source file(s) initially passed to the module
-            this._length = 0;
+            this._initiallyLoaded = 0;
+
+            // Set whether all scripts were loaded successfully
+            this._isSuccess = true;
+
+            // Promise related function callbacks
+            this._resolve = null;
+            this._reject = null;
         }
 
         /**
@@ -238,6 +253,7 @@
             // node.type = 'text/javascript';
             // node.charset = 'utf-8';
 
+            // Set script loading to be asynchronous
             node.async = true;
 
             node.setAttribute(DATA_ATTRIBUTE_SOURCE_FILE, sourceFile);
@@ -255,22 +271,22 @@
         }
 
         /**
-         * Increment the loaded scripts property and invoke the callback function on completion
+         * Increment the loaded scripts property and invoke either resolve or reject on success or error
          *
-         * @param {boolean} isSuccess Whether the request was successful or not
          * @return {undefined}
          */
-        _onCompleted(isSuccess) {
-            // If not equal to the boolean type and true, then automatically assume as false
-            if (isSuccess !== true) {
-                isSuccess = false;
-            }
-
+        _onCompleted() {
             // Increment the loaded total count
-            this._loaded++;
+            this._allLoaded++;
 
-            if (this._length === this._loaded) {
-                this._callback.apply(this, [this._called, isSuccess]);
+            // If the initial loaded count is the same as the actual loaded count, then assume all scripts were loaded
+            if (this._initiallyLoaded === this._allLoaded) {
+                if (this._isSuccess) {
+                    this._resolve(this._called);
+                } else {
+                    this._reject(this._called);
+                }
+
                 this._destroy();
             }
         }
@@ -284,10 +300,19 @@
         _onLoad(event) {
             // Store the type of event and whether it was a 'load' or 'error' type event
             const type = event.type;
-            const isLoaded = type === 'load';
+            const isError = type === 'error';
+            const isSuccess = type === 'load';
 
-            if (isLoaded || type === 'error') {
+            // If loading failed and globally isSuccess is true, then set to false
+            // This is only done once if a single failure takes place
+            if (!isSuccess && this._isSuccess) {
+                this._isSuccess = isSuccess;
+            }
+
+            if (isSuccess || isError) {
                 const node = event.currentTarget || event.srcElement;
+
+                // A serious error occurred
                 if (!node) {
                     return;
                 }
@@ -296,22 +321,21 @@
                 node.removeEventListener('load', this._onLoad, false);
                 node.removeEventListener('error', this._onLoad, false);
 
-                // Display details about the inserted SCRIPT node and script
-                if (isLoaded) {
-                    // Get the source file directly from the data-* attribute. Could use node.getAttribute('src')
-                    const sourceFile = node.getAttribute(DATA_ATTRIBUTE_SOURCE_FILE);
+                // Get the source file directly from the data-* attribute. Could use node.getAttribute('src') as well
+                const sourceFile = node.getAttribute(DATA_ATTRIBUTE_SOURCE_FILE);
 
-                    // Updated the state of the source file using the index position of the source file in _sourceFiles
-                    const index = _storageFiles.indexOf(sourceFile);
-                    if (index !== -1) {
-                        _storageState[index] = isLoaded;
-                    }
+                // Update the state of the source file using the index position of the source file in _sourceFiles
+                const index = _storageFiles.indexOf(sourceFile);
+                if (index !== IS_NOT_FOUND) {
+                    _storageState[index] = isSuccess;
+                }
 
-                    // Push to the successfully loaded scripts
+                if (isSuccess) {
+                    // Push to the successfully loaded scripts if loading was successful
                     this._called.push(sourceFile);
                 }
 
-                this._onCompleted(true);
+                this._onCompleted(isSuccess);
             }
         }
     };
