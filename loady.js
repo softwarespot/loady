@@ -13,12 +13,12 @@
     // Constants
 
     // Public API
-    const _loadyAPI = (sourceFiles, callback) => {
+    const _loadyAPI = (sourceFiles) => {
         // Create an instance of the internal loader class
         const loady = new ILoader();
 
         // Load the source file(s)
-        loady.load(sourceFiles, callback);
+        return loady.load(sourceFiles);
     };
 
     // Store a 'module' reference
@@ -50,7 +50,9 @@
     const VERSION = '0.1.0';
 
     // Data attribute to distinguish between a standard script element and a 'loady' script element
-    var DATA_ATTRIBUTE_SOURCE_FILE = 'data-loady-sourcefile';
+    const DATA_ATTRIBUTE_SOURCE_FILE = 'data-loady-sourcefile';
+
+    const IS_NOT_FOUND = -1;
 
     // Store the document object reference
     const document = global.document;
@@ -153,22 +155,21 @@
          * The arguments passed to the callback function is an array of loaded scripts and a success parameter of either true or false
          * @return {undefined}
          */
-        load(sourceFiles, callback) {
-            // This is the only error thrown, due to a callback being required
-            if (!_isFunction(callback)) {
-                throw new global.Error('Loady: The callback function argument is not a valid function type.');
-            }
-
-            // Destroy the previous contents
-            this._destroy();
-
+        load(sourceFiles) {
             // Coerce as an array if the source file is a string
             if (_isString(sourceFiles)) {
                 sourceFiles = [sourceFiles];
             }
 
-            // Set the callback function property
-            this._callback = callback;
+            // Destroy the previous contents
+            this._destroy();
+
+            // Create a new promise object
+            this._promise = new window.Promise((resolve, reject) => {
+                // Expose the internal resolve and reject function
+                this._resolve = resolve;
+                this._reject = reject;
+            });
 
             // Check if the source file(s) argument is not an array or is empty
             if (!_isArray(sourceFiles) || sourceFiles.length === 0) {
@@ -176,7 +177,7 @@
                 return;
             }
 
-            // Set to 0, as now all the important pre-checks have passed
+            // Set to 0, as now all the necessary pre-checks have taken place
             this._loaded = 0;
             this._called = [];
             this._files = sourceFiles;
@@ -188,7 +189,7 @@
 
                 // Check for duplicate source file(s) that were loaded in the past
                 const index = _storageFiles.indexOf(sourceFile);
-                if (index !== -1) {
+                if (index !== IS_NOT_FOUND) {
                     this._onCompleted(_storageState[index]);
                     continue;
                 }
@@ -196,6 +197,8 @@
                 // Load the script file and append to the current document
                 this._loadScript(sourceFile);
             }
+
+            return this._promise;
         }
 
         /**
@@ -204,9 +207,6 @@
          * @return {undefined}
          */
         _destroy() {
-            // Final callback function after all scripts have been loaded successfully or not
-            this._callback = null;
-
             // Currently loaded total count
             //
             // Note: The loaded count is set to -1, due to this._onCompleted incrementing by 1 and checking against this._length,
@@ -221,6 +221,11 @@
 
             // Length of the source file(s) initially passed to the module
             this._length = 0;
+
+            // Promise object
+            this._promise = null;
+            this._resolve = null;
+            this._reject = null;
         }
 
         /**
@@ -255,13 +260,13 @@
         }
 
         /**
-         * Increment the loaded scripts property and invoke the callback function on completion
+         * Increment the loaded scripts property and invoke either resolve or reject on success or error
          *
          * @param {boolean} isSuccess Whether the request was successful or not
          * @return {undefined}
          */
         _onCompleted(isSuccess) {
-            // If not equal to the boolean type and true, then automatically assume as false
+            // If not equal true, then automatically assume it as being false i.e. an error occurred
             if (isSuccess !== true) {
                 isSuccess = false;
             }
@@ -269,8 +274,14 @@
             // Increment the loaded total count
             this._loaded++;
 
+            // If the initial loaded count is the same as the actual loaded count, the assume all scripts were loaded
             if (this._length === this._loaded) {
-                this._callback.apply(this, [this._called, isSuccess]);
+                if (isSuccess) {
+                    this._resolve(this._called);
+                } else {
+                    this._reject(this._called);
+                }
+
                 this._destroy();
             }
         }
@@ -284,9 +295,9 @@
         _onLoad(event) {
             // Store the type of event and whether it was a 'load' or 'error' type event
             const type = event.type;
-            const isLoaded = type === 'load';
+            const isSuccess = type === 'load';
 
-            if (isLoaded || type === 'error') {
+            if (type === 'load' || type === 'error') {
                 const node = event.currentTarget || event.srcElement;
                 if (!node) {
                     return;
@@ -297,21 +308,21 @@
                 node.removeEventListener('error', this._onLoad, false);
 
                 // Display details about the inserted SCRIPT node and script
-                if (isLoaded) {
+                if (isSuccess) {
                     // Get the source file directly from the data-* attribute. Could use node.getAttribute('src')
                     const sourceFile = node.getAttribute(DATA_ATTRIBUTE_SOURCE_FILE);
 
                     // Updated the state of the source file using the index position of the source file in _sourceFiles
                     const index = _storageFiles.indexOf(sourceFile);
-                    if (index !== -1) {
-                        _storageState[index] = isLoaded;
+                    if (index !== IS_NOT_FOUND) {
+                        _storageState[index] = isSuccess;
                     }
 
                     // Push to the successfully loaded scripts
                     this._called.push(sourceFile);
                 }
 
-                this._onCompleted(true);
+                this._onCompleted(isSuccess);
             }
         }
     };
