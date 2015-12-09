@@ -18,4 +18,4 @@
     if (!global.App.system) {
         global.App.system = _publicAPI;
     }
-})(window); // Can't be 'this' with babelJS, as it gets set to 'undefined'
+})(window);
