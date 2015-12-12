@@ -9,13 +9,13 @@
  * Note: This is NOT a replacement for module loaders available on the market
  */
 ; // jshint ignore:line
-((global, name, ILoader, undefined) => {
+((global, name, ILoady, undefined) => {
     // Constants
 
     // Public API
     const _loadyAPI = (sourceFiles) => {
         // Create an instance of the internal loader class
-        const loady = new ILoader();
+        const loady = new ILoady();
 
         // Load the source file(s)
         return loady.load(sourceFiles);
@@ -127,9 +127,9 @@
     }
 
     /**
-     * ILoader class
+     * ILoady class
      */
-    return class ILoader {
+    return class ILoady {
         /**
          * Constructor for the class
          *
