@@ -13,14 +13,14 @@ var merge = require('merge2');
 
 // Assets for the project
 var Assets = {
-    dest: 'dist',
+    dest: './dist/',
     main: 'loady.js',
     minified: 'loady.min.js',
     other: [
-        './system.js',
-        './user.js',
+        './src/system.js',
+        './src/user.js',
     ],
-    source: './',
+    source: './src/',
 };
 Assets.other.push(Assets.source + Assets.main);
 
@@ -40,7 +40,7 @@ var _uglifySettings = {
 
 // Clean the 'dist' directory
 gulp.task('clean', function cleanTask(cb) {
-    del([Assets.dest + '/*.js'], cb);
+    del([Assets.dest + '*.js'], cb);
 });
 
 // Run the babel transpiler to convert from ES2015 to ES5
@@ -48,8 +48,9 @@ gulp.task('es6to5', function es6To5Task() {
     return gulp.src(Assets.other)
         .pipe(babel({
             presets: ['es2015'],
+            plugins: ['transform-es2015-modules-umd'],
         }))
-        .pipe(gulp.dest(Assets.source + Assets.dest));
+        .pipe(gulp.dest(Assets.dest));
 });
 
 // Check the code meets the following standards outlined in .jshintrc
@@ -61,11 +62,11 @@ gulp.task('jshint', function jsHintTask() {
 
 // Uglify aka minify the main file
 gulp.task('uglify', ['es6to5'], function uglifyTask() {
-    return gulp.src(Assets.source + Assets.dest + '/' + Assets.main)
+    return gulp.src(Assets.dest + '/' + Assets.main)
         .pipe(concat(Assets.minified))
         .pipe(uglify(_uglifySettings))
         .pipe(rename(Assets.minified))
-        .pipe(gulp.dest(Assets.source + Assets.dest));
+        .pipe(gulp.dest(Assets.dest));
 });
 
 // Watch for changes to the main file
@@ -78,7 +79,7 @@ gulp.task('version', function versionTask() {
     // SemVer matching is done using (?:\d+\.){2}\d+
 
     var VERSION_NUMBER = 1;
-    var reVersion = /\n\s*\*\s+Version:\s+((?:\d+\.){2}\d+)/;
+    var reVersion = /\n\/{2}\sVersion:\s((?:\d+\.){2}\d+)/;
     var version = fs.readFileSync(Assets.source + Assets.main, {
         encoding: 'utf8',
     })
@@ -87,6 +88,13 @@ gulp.task('version', function versionTask() {
     .match(reVersion)[VERSION_NUMBER];
 
     var streams = merge();
+
+    // Main file VERSION constant
+    streams.add(
+        gulp.src(Assets.source + Assets.main)
+        .pipe(replace(/VERSION\s+=\s+'(?:\d+\.){2}\d+';/, 'VERSION = \'' + version + '\';'))
+        .pipe(gulp.dest(Assets.source))
+    );
 
     // package.json version property
     streams.add(

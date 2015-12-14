@@ -216,6 +216,6 @@ function _instanceof(left, right) { if (right != null && right[Symbol.hasInstanc
     var loady = new Loady();
 
     var load = exports.load = function load(sourceFiles) {
-        return loady.load(sourceFiles);
+        loady.load(sourceFiles);
     };
 });

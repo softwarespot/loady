@@ -17,7 +17,7 @@ If you're unaware of just what a script loader is, read the links below.
     <script>
         // An array of strings or a string can be passed as the first argument
         // It returns an ES2015 promise which in turn passes the scripts that were either successfully loaded or not
-        loady(['myScript1.js', 'myScript2.js', 'myScript3'])
+        loady.load(['myScript1.js', 'myScript2.js', 'myScript3'])
         .then(function success(scripts) {
             console.log('Success, the following scripts were loaded into the current document { %o }', scripts);
         })

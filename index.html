@@ -36,7 +36,7 @@
         /* global App, loady */
         $(function () {
             // Add the following scripts, including a duplicate script to the current document
-            var promise = loady(['dist/system', 'dist/system.js', 'dist/user']);
+            var promise = loady.load(['dist/system', 'dist/system.js', 'dist/user']);
 
             // If all scripts are successfully loaded, then call the following function on resolved
             promise.then(function promiseThen(scripts) {
