@@ -206,6 +206,7 @@ class Loady {
      * @return {undefined}
      */
     _loadScript(sourceFile) {
+        // Uses HTMLScriptElement, URL: https://developer.mozilla.org/en/docs/Web/API/HTMLScriptElement
         const node = _document.createElement('script');
         node.src = sourceFile;
 
@@ -213,6 +214,7 @@ class Loady {
 
         // node.type = 'text/javascript';
         // node.charset = 'utf-8';
+        // node.crossOrigin = 'anonymous';
 
         // Set script loading to be asynchronous
         node.async = true;
