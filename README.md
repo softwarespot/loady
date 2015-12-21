@@ -12,7 +12,7 @@ If you're unaware of just what a script loader is, read the links below.
 
 ```html
     <!--Use the minified version for better performance-->
-    <script src="loady.js"></script>
+    <script src="loady_es5.min.js"></script>
 
     <script>
         // An array of strings or a string can be passed as the first argument

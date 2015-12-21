@@ -1,3 +1,5 @@
+'use strict';
+
 // Loady module
 //
 // https://github.com/softwarespot/loady

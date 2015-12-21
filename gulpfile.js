@@ -16,13 +16,13 @@ var Assets = {
     dest: './dist/',
     main: 'loady.js',
     minified: 'loady.min.js',
+    minifiedES5: 'loady_es5.min.js',
     other: [
         './src/system.js',
         './src/user.js',
     ],
     source: './src/',
 };
-Assets.other.push(Assets.source + Assets.main);
 
 // See the uglify documentation for more details
 var _uglifySettings = {
@@ -43,14 +43,26 @@ gulp.task('clean', function cleanTask(cb) {
     del([Assets.dest + '*.js'], cb);
 });
 
-// Run the babel transpiler to convert from ES2015 to ES5
-gulp.task('es6to5', function es6To5Task() {
-    return gulp.src(Assets.other)
-        .pipe(babel({
-            presets: ['es2015'],
-            plugins: ['transform-es2015-modules-umd'],
-        }))
-        .pipe(gulp.dest(Assets.dest));
+// Run the babel transpiler to convert from ES2015 to ES5, as well as minifying
+gulp.task('es2015to5', function es2015To5Task() {
+    var babelSettings = {
+        presets: ['es2015'],
+        plugins: ['transform-es2015-modules-umd'],
+    };
+
+    var streams = merge();
+
+    streams.add(gulp.src(Assets.source + Assets.main)
+        .pipe(babel(babelSettings))
+        .pipe(uglify(_uglifySettings))
+        .pipe(rename(Assets.minifiedES5))
+        .pipe(gulp.dest(Assets.dest)));
+
+    streams.add(gulp.src(Assets.other)
+        .pipe(babel(babelSettings))
+        .pipe(gulp.dest(Assets.dest)));
+
+    return streams;
 });
 
 // Check the code meets the following standards outlined in .jshintrc
@@ -61,12 +73,16 @@ gulp.task('jshint', function jsHintTask() {
 });
 
 // Uglify aka minify the main file
-gulp.task('uglify', ['es6to5'], function uglifyTask() {
-    return gulp.src(Assets.dest + '/' + Assets.main)
-        .pipe(concat(Assets.minified))
-        .pipe(uglify(_uglifySettings))
-        .pipe(rename(Assets.minified))
+gulp.task('uglify', function uglifyTask() {
+    // Copy the main file to the source directory
+    return gulp.src(Assets.source + '/' + Assets.main)
         .pipe(gulp.dest(Assets.dest));
+
+    // Uglify right now is unable to uglify ES2015
+    // return gulp.src(Assets.source + '/' + Assets.main)
+    //     .pipe(uglify(_uglifySettings))
+    //     .pipe(rename(Assets.minified))
+    //     .pipe(gulp.dest(Assets.dest));
 });
 
 // Watch for changes to the main file
@@ -114,9 +130,9 @@ gulp.task('version', function versionTask() {
 });
 
 // Register the default task
-gulp.task('default', ['version', 'jshint', 'uglify']);
+gulp.task('default', ['version', 'jshint', 'uglify', 'es2015to5']);
 
-// 'gulp es6to5' to transpile from ES2015 to ES5
+// 'gulp es2015to5' to transpile from ES2015 to ES5, as well as minifying
 // 'gulp jshint' to check the syntax
 // 'gulp uglify' to uglify the main file
 // 'gulp watch' to watch for changes to the main file
