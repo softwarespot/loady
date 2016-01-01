@@ -4,7 +4,7 @@
 
 ## What is Loady?
 
-Many script loaders exist in the real world and I'm in no way trying be the "next big thing", as I believe the likes of [RequireJS](https://github.com/jrburke/requirejs) are adequate enough for daily usage. I simply created this as a way to further improve my knowledge of JavaScript and experiment with features that I necessarily wouldn't mess around with.
+Many script loaders exist in the real world and I'm in no way trying be the "next big thing", as I believe the likes of [RequireJS](https://github.com/jrburke/requirejs) are adequate enough for daily use. I simply created this as a way to further improve my knowledge of JavaScript and experiment with features that I necessarily wouldn't mess around with.
 
 If you're unaware of just what a script loader is, read the links below.
 
@@ -15,7 +15,7 @@ If you're unaware of just what a script loader is, read the links below.
     <script src="loady_es5.min.js"></script>
 
     <script>
-        // An array of strings or a string can be passed as the first argument
+        // An array of strings or a single string can be passed as the first argument.
         // It returns an ES2015 promise which in turn passes the scripts that were either successfully loaded or not
         loady.load(['myScript1.js', 'myScript2.js', 'myScript3'])
         .then(function success(scripts) {
