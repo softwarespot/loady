@@ -10,6 +10,7 @@ var uglify = require('gulp-uglify');
 var del = require('del');
 var fs = require('fs');
 var merge = require('merge2');
+var pkg = require('./package.json');
 
 // Assets for the project
 var Assets = {
@@ -94,35 +95,26 @@ gulp.task('watch', function watchTask() {
 gulp.task('version', function versionTask() {
     // SemVer matching is done using (?:\d+\.){2}\d+
 
-    var VERSION_NUMBER = 1;
-    var reVersion = /\n\/{2}\sVersion:\s((?:\d+\.){2}\d+)/;
-    var version = fs.readFileSync(Assets.source + Assets.main, {
-        encoding: 'utf8',
-    })
+    var reConstantsVersion = /VERSION\s+=\s+'(?:\d+\.){2}\d+';/;
+    var reMainVersion = /(?:(\n\s*\*\s+Version:\s+)(?:\d+\.){2}\d+)/;
+    var reReadmeVersion = /^#\s+([\w\-]+)\s+-\s+v(?:\d+\.){2}\d+/;
 
-    // Match is found in the 2nd element
-    .match(reVersion)[VERSION_NUMBER];
+    var version = pkg.version;
 
     var streams = merge();
 
-    // Main file VERSION constant
+    // Main file VERSION constant and number
     streams.add(
         gulp.src(Assets.source + Assets.main)
-        .pipe(replace(/VERSION\s+=\s+'(?:\d+\.){2}\d+';/, 'VERSION = \'' + version + '\';'))
-        .pipe(gulp.dest(Assets.source))
-    );
-
-    // package.json version property
-    streams.add(
-        gulp.src(Assets.source + 'package.json')
-        .pipe(replace(/"version":\s+"(?:\d+\.){2}\d+",/, '"version": "' + version + '",'))
+        .pipe(replace(reMainVersion, '$1' + version))
+        .pipe(replace(reConstantsVersion, 'VERSION = \'' + version + '\';'))
         .pipe(gulp.dest(Assets.source))
     );
 
     // README.md version number
     streams.add(
         gulp.src(Assets.source + 'README.md')
-        .pipe(replace(/^#\s+([\w\-]+)\s+-\s+v(?:\d+\.){2}\d+/, '# $1 - v' + version))
+        .pipe(replace(reReadmeVersion, '# $1 - v' + version))
         .pipe(gulp.dest(Assets.source))
     );
 
