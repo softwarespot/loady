@@ -46,7 +46,7 @@ const _objectStringsGenerator = '[object GeneratorFunction]';
 const _objectStringsString = '[object String]';
 
 // Store the toString method
-const _objectToString = window.Object.prototype.toString;
+const _nativeObjectToString = window.Object.prototype.toString;
 
 // Helper methods
 
@@ -57,7 +57,7 @@ const _objectToString = window.Object.prototype.toString;
  * @returns {boolean} True, the value is a function datatype; otherwise, false
  */
 function _isFunction(value) {
-    const tag = _objectToString.call(value);
+    const tag = _nativeObjectToString.call(value);
     return tag === _objectStringsFunction || tag === _objectStringsGenerator;
 }
 
@@ -68,7 +68,7 @@ function _isFunction(value) {
  * @returns {boolean} True, the value is an array datatype; otherwise, false
  */
 const _isArray = _isFunction(window.Array.isArray) ? window.Array.isArray : (value) => {
-    return _objectToString.call(value) === _objectStringsArray;
+    return _nativeObjectToString.call(value) === _objectStringsArray;
 };
 
 /**
@@ -78,7 +78,7 @@ const _isArray = _isFunction(window.Array.isArray) ? window.Array.isArray : (val
  * @returns {boolean} True, the value is a string datatype; otherwise, false
  */
 function _isString(value) {
-    return typeof value === 'string' || _objectToString.call(value) === _objectStringsString;
+    return typeof value === 'string' || _nativeObjectToString.call(value) === _objectStringsString;
 }
 
 // Interface
