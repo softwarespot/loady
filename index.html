@@ -30,11 +30,11 @@
     <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut dignissim nibh non fermentum vestibulum. Maecenas vel ligula sapien. Ut rhoncus accumsan magna, et venenatis ante porttitor vitae. Vivamus hendrerit scelerisque velit sed fermentum. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Aenean dignissim neque in urna tincidunt, in rhoncus massa bibendum. Suspendisse vel nisi justo.</p>
 
     <!--Scripts-->
-    <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+    <script src="https://code.jquery.com/jquery-2.2.0.min.js"></script>
     <script src="dist/loady_es5.min.js"></script>
     <script>
         /* global App, loady */
-        $(function () {
+        $(function domReady() {
             // Add the following scripts, including a duplicate script to the current document
             var promise = loady.load(['dist/system', 'dist/system.js', 'dist/user']);
 

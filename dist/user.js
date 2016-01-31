@@ -1,5 +1,3 @@
-'use strict';
-
 (function (global, factory) {
     if (typeof define === "function" && define.amd) {
         define([], factory);
@@ -13,6 +11,8 @@
         global.user = mod.exports;
     }
 })(this, function () {
+    'use strict';
+
     (function (global) {
         var _publicAPI = {
             init: init

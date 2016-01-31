@@ -3,12 +3,12 @@
 var gulp = require('gulp');
 var babel = require('gulp-babel');
 var concat = require('gulp-concat');
-var jshint = require('gulp-jshint');
+var eslint = require('gulp-eslint');
+var gulpIf = require('gulp-if');
 var rename = require('gulp-rename');
 var replace = require('gulp-replace');
 var uglify = require('gulp-uglify');
 var del = require('del');
-var fs = require('fs');
 var merge = require('merge2');
 var pkg = require('./package.json');
 
@@ -22,7 +22,10 @@ var Assets = {
         './src/system.js',
         './src/user.js',
     ],
-    source: './src/',
+    package: './package.json',
+    readme: './README.md',
+    src: './src/',
+    source: './',
 };
 
 // See the uglify documentation for more details
@@ -53,7 +56,7 @@ gulp.task('es2015to5', function es2015To5Task() {
 
     var streams = merge();
 
-    streams.add(gulp.src(Assets.source + Assets.main)
+    streams.add(gulp.src(Assets.src + '/' + Assets.main)
         .pipe(babel(babelSettings))
         .pipe(uglify(_uglifySettings))
         .pipe(rename(Assets.minifiedES5))
@@ -66,21 +69,30 @@ gulp.task('es2015to5', function es2015To5Task() {
     return streams;
 });
 
-// Check the code meets the following standards outlined in .jshintrc
-gulp.task('jshint', function jsHintTask() {
-    return gulp.src(Assets.source + Assets.main)
-        .pipe(jshint())
-        .pipe(jshint.reporter('jshint-stylish'));
+// Check the main js file meets the following standards outlined in .eslintrc
+gulp.task('eslint', function esLintTask() {
+    // Has ESLint fixed the file contents?
+    function isFixed(file) {
+        return file.eslint !== undefined && file.eslint !== null && file.eslint.fixed;
+    }
+
+    return gulp.src(Assets.src + '/' + Assets.main)
+        .pipe(eslint({
+            fix: true,
+            useEslintrc: '.eslintrc',
+        }))
+        .pipe(eslint.format())
+        .pipe(gulpIf(isFixed, gulp.dest(Assets.src)));
 });
 
 // Uglify aka minify the main file
 gulp.task('uglify', function uglifyTask() {
     // Copy the main file to the source directory
-    return gulp.src(Assets.source + '/' + Assets.main)
+    return gulp.src(Assets.src + '/' + Assets.main)
         .pipe(gulp.dest(Assets.dest));
 
     // Uglify right now is unable to uglify ES2015
-    // return gulp.src(Assets.source + '/' + Assets.main)
+    // return gulp.src(Assets.src + '/' + Assets.main)
     //     .pipe(uglify(_uglifySettings))
     //     .pipe(rename(Assets.minified))
     //     .pipe(gulp.dest(Assets.dest));
@@ -88,33 +100,29 @@ gulp.task('uglify', function uglifyTask() {
 
 // Watch for changes to the main file
 gulp.task('watch', function watchTask() {
-    gulp.watch(Assets.source + Assets.main, ['jshint', 'uglify']);
+    gulp.watch(Assets.src + '/' + Assets.main, ['eslint', 'uglify']);
 });
 
 // Update version numbers based on the main file version comment
 gulp.task('version', function versionTask() {
     // SemVer matching is done using (?:\d+\.){2}\d+
 
-    var reConstantsVersion = /VERSION\s+=\s+'(?:\d+\.){2}\d+';/;
-    var reMainVersion = /(?:(\n\s*\*\s+Version:\s+)(?:\d+\.){2}\d+)/;
-    var reReadmeVersion = /^#\s+([\w\-]+)\s+-\s+v(?:\d+\.){2}\d+/;
-
-    var version = pkg.version;
+    var reVersion = /(?:(\n\s*\*\s+Version:\s+)(?:\d+\.){2}\d+)/;
+    var reVersionReadMe = /(?:^#\s+([\w\-]+)\s+-\s+v(?:\d+\.){2}\d+)/;
 
     var streams = merge();
 
-    // Main file VERSION constant and number
+    // Update the main js file version number
     streams.add(
-        gulp.src(Assets.source + Assets.main)
-        .pipe(replace(reMainVersion, '$1' + version))
-        .pipe(replace(reConstantsVersion, 'VERSION = \'' + version + '\';'))
+        gulp.src(Assets.src + '/' + Assets.main)
+        .pipe(replace(reVersion, '$1' + pkg.version))
         .pipe(gulp.dest(Assets.source))
     );
 
-    // README.md version number
+    // Update the README.md version number
     streams.add(
-        gulp.src(Assets.source + 'README.md')
-        .pipe(replace(reReadmeVersion, '# $1 - v' + version))
+        gulp.src(Assets.readme)
+        .pipe(replace(reVersionReadMe, '# $1 - v' + pkg.version))
         .pipe(gulp.dest(Assets.source))
     );
 
@@ -122,10 +130,10 @@ gulp.task('version', function versionTask() {
 });
 
 // Register the default task
-gulp.task('default', ['version', 'jshint', 'uglify', 'es2015to5']);
+gulp.task('default', ['version', 'eslint', 'uglify', 'es2015to5']);
 
 // 'gulp es2015to5' to transpile from ES2015 to ES5, as well as minifying
-// 'gulp jshint' to check the syntax
+// 'gulp eslint' to check the syntax of the main js file(s)
 // 'gulp uglify' to uglify the main file
 // 'gulp watch' to watch for changes to the main file
 // 'gulp version' to update the version numbers based on the main file version comment
