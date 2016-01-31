@@ -1,5 +1,3 @@
-'use strict';
-
 // Loady module
 //
 // https://github.com/softwarespot/loady
@@ -67,9 +65,7 @@ function _isFunction(value) {
  * @param {mixed} value Value to check
  * @returns {boolean} True, the value is an array datatype; otherwise, false
  */
-const _isArray = _isFunction(window.Array.isArray) ? window.Array.isArray : (value) => {
-    return _nativeObjectToString.call(value) === _objectStringsArray;
-};
+const _isArray = _isFunction(window.Array.isArray) ? window.Array.isArray : (value) => _nativeObjectToString.call(value) === _objectStringsArray;
 
 /**
  * Check if a variable is a string datatype
@@ -118,9 +114,7 @@ class Loady {
         }
 
         // Remove invalid source files(s)
-        sourceFiles = sourceFiles.filter((sourceFile) => {
-            return _isString(sourceFile) && sourceFile.length > 0;
-        });
+        sourceFiles = sourceFiles.filter((sourceFile) => _isString(sourceFile) && sourceFile.length > 0);
 
         // Destroy the previous contents
         this._destroy();
@@ -149,10 +143,10 @@ class Loady {
 
         // Map, filter and iterate over the passed source files(s)
         sourceFiles
-            .map((sourceFile) => {
-                // Strip and append ".js" to the source file if it doesn't already exist
-                return sourceFile.replace(_reJSExtension, '') + '.js';
-            })
+
+            // Strip and append ".js" to the source file if it doesn't already exist
+            .map((sourceFile) => sourceFile.replace(_reJSExtension, '.js'))
+
             .filter((sourceFile) => {
                 // Check for duplicate source file(s) that were loaded in the past
                 const index = _storageFiles.indexOf(sourceFile);
@@ -311,6 +305,4 @@ class Loady {
 const loady = new Loady();
 
 // Load the source file(s)
-export const load = (sourceFiles) => {
-    return loady.load(sourceFiles);
-};
+export const load = (sourceFiles) => loady.load(sourceFiles);
