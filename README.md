@@ -33,7 +33,7 @@ The module is written using ES2015, but is transpiled using [babel](https://babe
 
 ## Contribute
 
-To contribute to the project, you will first need to install [gulp](http://gulpjs.com) globally on your system. Once installation has completed, change the working directory to the module's location and run the following command:
+To contribute to the project, you will first need to install [node](https://nodejs.org) globally on your system. Once installation has completed, change the working directory to the module's location and run the following command:
 
 ```shell
     npm install
