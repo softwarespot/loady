@@ -2,7 +2,7 @@
 ((global) => {
     // Public API
     const _publicAPI = {
-        init: init,
+        init,
     };
 
     // Create an 'App' namespace
