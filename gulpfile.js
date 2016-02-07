@@ -69,7 +69,7 @@ gulp.task('es2015to5', function es2015To5Task() {
     return streams;
 });
 
-// Check the main js file meets the following standards outlined in .eslintrc
+// Check the main js file(s) meets the following standards outlined in .eslintrc
 gulp.task('eslint', function esLintTask() {
     // Has ESLint fixed the file contents?
     function isFixed(file) {
