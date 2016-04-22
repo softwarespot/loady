@@ -22,29 +22,29 @@ const IS_NOT_FOUND = -1;
 // Fields
 
 // Store the document object reference
-const _document = window.document;
+const document = window.document;
 
 // Store the first head node
-const _head = _document.head || _document.getElementsByTagName('head')[0];
+const head = document.head || document.getElementsByTagName('head')[0];
 
 // Regular expression to strip the JS extension
-const _reJSExtension = /(?:\.js$)/;
+const reJSExtension = /(?:\.js$)/;
 
 // Store previously loaded source file(s)
-const _storageFiles = [];
+const storageFiles = [];
 
 // Store the state of the source file(s) i.e. true or false
-const _storageState = [];
+const storageState = [];
 
 // Return strings of toString() found on the Object prototype
 // Based on the implementation by lodash inc. is* function as well
-const _objectStringsArray = '[object Array]';
-const _objectStringsFunction = '[object Function]';
-const _objectStringsGenerator = '[object GeneratorFunction]';
-const _objectStringsString = '[object String]';
+const objectStringsArray = '[object Array]';
+const objectStringsFunction = '[object Function]';
+const objectStringsGenerator = '[object GeneratorFunction]';
+const objectStringsString = '[object String]';
 
 // Store the toString method
-const _nativeObjectToString = window.Object.prototype.toString;
+const nativeObjectToString = Object.prototype.toString;
 
 // Helper methods
 
@@ -54,9 +54,9 @@ const _nativeObjectToString = window.Object.prototype.toString;
  * @param {mixed} value Value to check
  * @returns {boolean} True, the value is a function datatype; otherwise, false
  */
-function _isFunction(value) {
-    const tag = _nativeObjectToString.call(value);
-    return tag === _objectStringsFunction || tag === _objectStringsGenerator;
+function isFunction(value) {
+    const tag = nativeObjectToString.call(value);
+    return tag === objectStringsFunction || tag === objectStringsGenerator;
 }
 
 /**
@@ -65,7 +65,7 @@ function _isFunction(value) {
  * @param {mixed} value Value to check
  * @returns {boolean} True, the value is an array datatype; otherwise, false
  */
-const _isArray = _isFunction(window.Array.isArray) ? window.Array.isArray : (value) => _nativeObjectToString.call(value) === _objectStringsArray;
+const isArray = isFunction(window.Array.isArray) ? window.Array.isArray : (value) => nativeObjectToString.call(value) === objectStringsArray;
 
 /**
  * Check if a variable is a string datatype
@@ -73,8 +73,8 @@ const _isArray = _isFunction(window.Array.isArray) ? window.Array.isArray : (val
  * @param {mixed} value Value to check
  * @returns {boolean} True, the value is a string datatype; otherwise, false
  */
-function _isString(value) {
-    return typeof value === 'string' || _nativeObjectToString.call(value) === _objectStringsString;
+function isString(value) {
+    return typeof value === 'string' || nativeObjectToString.call(value) === objectStringsString;
 }
 
 // Interface
@@ -89,7 +89,7 @@ class Loady {
      * @return {undefined}
      */
     constructor() {
-        this._destroy();
+        this.destroy();
     }
 
     /**
@@ -108,53 +108,53 @@ class Loady {
      * @return {promise} Returns a promise which in turns passes the successfully loaded scripts, regardless or success or failure
      */
     load(sourceFiles) {
-        // Coerce as an array if not already an array
-        if (!_isArray(sourceFiles)) {
+        // Coerce as an array if not already one
+        if (!isArray(sourceFiles)) {
             sourceFiles = [sourceFiles];
         }
 
         // Remove invalid source files(s)
-        sourceFiles = sourceFiles.filter((sourceFile) => _isString(sourceFile) && sourceFile.length > 0);
+        sourceFiles = sourceFiles.filter((sourceFile) => isString(sourceFile) && sourceFile.length > 0);
 
         // Destroy the previous contents
-        this._destroy();
+        this.destroy();
 
         // Create a new promise object
-        const promise = new window.Promise((resolve, reject) => {
+        const promise = new Promise((resolve, reject) => {
             // Expose the internal resolve and reject functions
-            this._resolve = resolve;
-            this._reject = reject;
+            this.resolve = resolve;
+            this.reject = reject;
         });
 
         // Check if the source file(s) argument is not an array or is empty
         if (sourceFiles.length === 0) {
             // Set to false, as a series error occurred before loading
-            this._isSuccess = false;
-            this._onCompleted();
+            this.isSuccess = false;
+            this.onCompleted();
 
             // Return the promise
             return promise;
         }
 
         // Set to 0, as all necessary pre-checks have taken place
-        this._allLoaded = 0;
-        this._called = [];
-        this._initiallyLoaded = sourceFiles.length;
+        this.allLoaded = 0;
+        this.called = [];
+        this.initiallyLoaded = sourceFiles.length;
 
         // Map, filter and iterate over the passed source files(s)
         sourceFiles
 
             // Strip and append ".js" to the source file if it doesn't already exist
-            .map((sourceFile) => sourceFile.replace(_reJSExtension, '.js'))
+            .map((sourceFile) => sourceFile.replace(reJSExtension, '.js'))
 
             .filter((sourceFile) => {
                 // Check for duplicate source file(s) that were loaded in the past
-                const index = _storageFiles.indexOf(sourceFile);
+                const index = storageFiles.indexOf(sourceFile);
                 const isNotFound = index === IS_NOT_FOUND;
 
                 // If found, then check the current state
                 if (!isNotFound) {
-                    this._onCompleted(_storageState[index]);
+                    this.onCompleted(storageState[index]);
                 }
 
                 // Filter only those which haven't yet been loaded
@@ -162,7 +162,7 @@ class Loady {
             })
             .forEach((sourceFile) => {
                 // Load the script file and append to the current document
-                this._loadScript(sourceFile);
+                this.loadScript(sourceFile);
             });
 
         // Return the promise
@@ -174,25 +174,25 @@ class Loady {
      *
      * @return {undefined}
      */
-    _destroy() {
+    destroy() {
         // Currently loaded total count
         //
-        // Note: The loaded count is set to -1, due to this._onCompleted incrementing by 1 and checking against this._initiallyLoaded,
+        // Note: The loaded count is set to -1, due to this.onCompleted incrementing by 1 and checking against this.initiallyLoaded,
         // which right now is set to 0. So this is utilised during pre-checks
-        this._allLoaded = -1;
+        this.allLoaded = -1;
 
         // An array of successfully loaded source file(s)
-        this._called = null;
+        this.called = null;
 
         // Length of the source file(s) initially passed to the module
-        this._initiallyLoaded = 0;
+        this.initiallyLoaded = 0;
 
         // Set whether all scripts were loaded successfully
-        this._isSuccess = true;
+        this.isSuccess = true;
 
         // Promise related function callbacks
-        this._resolve = null;
-        this._reject = null;
+        this.resolve = null;
+        this.reject = null;
     }
 
     /**
@@ -201,9 +201,9 @@ class Loady {
      * @param {string} sourceFile Script source location that can be absolute or relative
      * @return {undefined}
      */
-    _loadScript(sourceFile) {
+    loadScript(sourceFile) {
         // Uses HTMLScriptElement, URL: https://developer.mozilla.org/en/docs/Web/API/HTMLScriptElement
-        const node = _document.createElement('script');
+        const node = document.createElement('script');
         node.src = sourceFile;
 
         // node.text = file;
@@ -219,14 +219,14 @@ class Loady {
 
         // Attach events
         // Note: Bind is used to 'bind' to the context of 'this' i.e. the current object
-        node.addEventListener('load', this._onLoad.bind(this), false);
-        node.addEventListener('error', this._onLoad.bind(this), false);
+        node.addEventListener('load', this.onLoad.bind(this), false);
+        node.addEventListener('error', this.onLoad.bind(this), false);
 
-        // Append to the HEAD node
-        _head.appendChild(node);
+        // Append to the HEAD
+        head.appendChild(node);
 
         // Push to the internal storage
-        _storageFiles.push(sourceFile);
+        storageFiles.push(sourceFile);
     }
 
     /**
@@ -234,19 +234,19 @@ class Loady {
      *
      * @return {undefined}
      */
-    _onCompleted() {
+    onCompleted() {
         // Increment the loaded total count
-        this._allLoaded++;
+        this.allLoaded++;
 
         // If the initial loaded count is the same as the actual loaded count, then assume all scripts were loaded
-        if (this._initiallyLoaded === this._allLoaded) {
-            if (this._isSuccess) {
-                this._resolve(this._called);
+        if (this.initiallyLoaded === this.allLoaded) {
+            if (this.isSuccess) {
+                this.resolve(this.called);
             } else {
-                this._reject(this._called);
+                this.reject(this.called);
             }
 
-            this._destroy();
+            this.destroy();
         }
     }
 
@@ -256,7 +256,7 @@ class Loady {
      * @param {event} event Event object passed by the event listener
      * @return {undefined}
      */
-    _onLoad(event) {
+    onLoad(event) {
         // Store the type of event and whether it was a 'load' or 'error' type event
         const type = event.type;
         const isError = type === 'error';
@@ -264,8 +264,8 @@ class Loady {
 
         // If loading failed and globally isSuccess is true, then set to false
         // This is only done once if a single failure takes place
-        if (!isSuccess && this._isSuccess) {
-            this._isSuccess = isSuccess;
+        if (!isSuccess && this.isSuccess) {
+            this.isSuccess = isSuccess;
         }
 
         if (isSuccess || isError) {
@@ -277,24 +277,24 @@ class Loady {
             }
 
             // Remove assigned events
-            node.removeEventListener('load', this._onLoad, false);
-            node.removeEventListener('error', this._onLoad, false);
+            node.removeEventListener('load', this.onLoad, false);
+            node.removeEventListener('error', this.onLoad, false);
 
             // Get the source file directly from the data-* attribute. Could use node.getAttribute('src') as well
             const sourceFile = node.getAttribute(DATA_ATTRIBUTE_SOURCE_FILE);
 
-            // Update the state of the source file using the index position of the source file in _sourceFiles
-            const index = _storageFiles.indexOf(sourceFile);
+            // Update the state of the source file using the index position of the source file in sourceFiles
+            const index = storageFiles.indexOf(sourceFile);
             if (index !== IS_NOT_FOUND) {
-                _storageState[index] = isSuccess;
+                storageState[index] = isSuccess;
             }
 
             if (isSuccess) {
                 // Push to the successfully loaded scripts if loading was successful
-                this._called.push(sourceFile);
+                this.called.push(sourceFile);
             }
 
-            this._onCompleted(isSuccess);
+            this.onCompleted(isSuccess);
         }
     }
 }
