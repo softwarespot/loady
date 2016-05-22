@@ -25,7 +25,7 @@ const IS_NOT_FOUND = -1;
 const document = window.document;
 
 // Store the first head node
-const head = document.head || document.getElementsByTagName('head')[0];
+const head = document.head;
 
 // Regular expression to strip the JS extension
 const reJSExtension = /(?:\.js$)/;
@@ -36,28 +36,10 @@ const storageFiles = [];
 // Store the state of the source file(s) i.e. true or false
 const storageState = [];
 
-// Return strings of toString() found on the Object prototype
-// Based on the implementation by lodash inc. is* function as well
-const objectStringsArray = '[object Array]';
-const objectStringsFunction = '[object Function]';
-const objectStringsGenerator = '[object GeneratorFunction]';
-const objectStringsString = '[object String]';
-
 // Store the toString method
 const nativeObjectToString = Object.prototype.toString;
 
 // Helper methods
-
-/**
- * Check if a variable is a function datatype
- *
- * @param {mixed} value Value to check
- * @returns {boolean} True, the value is a function datatype; otherwise, false
- */
-function isFunction(value) {
-    const tag = nativeObjectToString.call(value);
-    return tag === objectStringsFunction || tag === objectStringsGenerator;
-}
 
 /**
  * Check if a variable is an array datatype
@@ -65,7 +47,7 @@ function isFunction(value) {
  * @param {mixed} value Value to check
  * @returns {boolean} True, the value is an array datatype; otherwise, false
  */
-const isArray = isFunction(window.Array.isArray) ? window.Array.isArray : (value) => nativeObjectToString.call(value) === objectStringsArray;
+const isArray = Array.isArray;
 
 /**
  * Check if a variable is a string datatype
@@ -74,7 +56,7 @@ const isArray = isFunction(window.Array.isArray) ? window.Array.isArray : (value
  * @returns {boolean} True, the value is a string datatype; otherwise, false
  */
 function isString(value) {
-    return typeof value === 'string' || nativeObjectToString.call(value) === objectStringsString;
+    return typeof value === 'string' || nativeObjectToString.call(value) === '[object String]';
 }
 
 // Interface
